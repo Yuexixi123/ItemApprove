@@ -57,3 +57,11 @@ npm test
 You can view full document on our [official website](https://pro.ant.design). And welcome any feedback in our [github](https://github.com/ant-design/ant-design-pro).
 
 # Auto-build test Thu Jul 24 16:47:40 CST 2025
+
+## 测试 Jenkins 自动构建
+
+这是一个测试提交，用于验证 Jenkins 自动构建功能是否正常工作。
+
+### 第二次测试 - 2025 年 7 月 24 日
+
+验证 SCM 轮询是否能检测到新的代码变更并自动触发构建。
