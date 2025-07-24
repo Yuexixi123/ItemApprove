@@ -1,0 +1,139 @@
+.group-list {
+  padding: 0 0;
+}
+.group-list .group-item {
+  padding: 10px 0 20px;
+  position: relative;
+}
+.group-list .group-item .group-title {
+  display: flex;
+  align-items: center;
+  color: #333948;
+  line-height: 21px;
+  margin: 0 40px 20px 0;
+  outline: 0;
+}
+.group-list .group-item .group-title .title-info {
+  display: flex;
+  font-size: 0;
+  vertical-align: middle;
+}
+.group-list .group-item .group-title .title-info .mr5,
+.group-list .group-item .group-title .title-info .number {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.group-list .group-item .group-title .title-info .number {
+  color: #c3cdd7;
+  margin-left: 6px;
+}
+.group-list .group-item .group-title .title-info .mr5 {
+  display: flex;
+  align-items: center;
+}
+.group-list .group-item .group-title .title-info .mr5 .title-number {
+  color: #c3cdd7;
+  margin-left: 4px;
+}
+.group-list .group-item .group-title .title-info .mr5 .show-title-icon {
+  color: #3a84ff;
+  margin-left: 10px;
+  cursor: pointer;
+}
+.group-list .group-item .group-title .title-info .mr5 .show-title-icon .icon-box:hover {
+  color: #7eb0ff;
+}
+.group-list .group-item .group-title::before {
+  background: #c3cdd7;
+  content: "";
+  display: inline-block;
+  height: 14px;
+  margin: 0 10px 0 0;
+  vertical-align: middle;
+  width: 4px;
+}
+.group-list .group-item .model-list {
+  overflow: hidden;
+  padding: 20px;
+  -webkit-transition: height 0.2s;
+  transition: height 0.2s;
+}
+.group-list .group-item .model-list .model-item {
+  background-color: #fff;
+  border: 1px solid #dde4eb;
+  border-radius: 2px;
+  cursor: pointer;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  float: left;
+  height: 70px;
+  margin: 10px 10px 0 0;
+  position: relative;
+  width: calc(20% - 10px);
+}
+.group-list .group-item .model-list .model-item .info-model {
+  flex: 4;
+}
+.group-list .group-item .model-list .model-item .info-model .icon-box {
+  color: #3a84ff;
+  float: left;
+  font-size: 32px;
+  text-align: center;
+  width: 66px;
+  padding: 10px;
+}
+.group-list .group-item .model-list .model-item .info-model .model-details {
+  overflow: hidden;
+  padding: 0 4px 0 0;
+}
+.group-list .group-item .model-list .model-item .info-model .model-details .model-name {
+  font-size: 14px;
+  line-height: 19px;
+  margin-top: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+.group-list .group-item .model-list .model-item .info-model .model-details .model-id {
+  color: #bfc7d2;
+  font-size: 12px;
+  line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.group-list .group-item .model-list .model-item .info-model:hover,
+.group-list .group-item .model-list .model-item .info-instance:hover {
+  background-color: #f0f5ff;
+}
+.group-list .group-item .model-list .model-item .info-instance {
+  border-radius: 0 4px 4px 0;
+  color: #c3cdd7;
+  display: none;
+  padding: 0 8px 0 6px;
+  text-align: center;
+  width: 70px;
+  flex: 1;
+}
+.group-list .group-item .model-list .model-item .info-instance .icon-cc-share {
+  color: #3a84ff;
+  font-size: 14px;
+  margin-top: 12px;
+}
+.group-list .group-item .model-list .model-item .info-instance p {
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 0;
+}
+.group-list .group-item .model-list .model-item:hover {
+  border-color: #3c96ff;
+}
+.group-list .group-item .model-list .model-item:hover .info-instance {
+  display: block;
+}

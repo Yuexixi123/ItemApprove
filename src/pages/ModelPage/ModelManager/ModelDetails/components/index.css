@@ -1,0 +1,157 @@
+.model-info {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  padding: 0 30px;
+  background: #ebf4ff;
+  border-bottom: 1px solid #dcdee5;
+  font-size: 14px;
+  height: 130px;
+  display: flex;
+  align-items: center;
+}
+.model-info .choose-icon-wrapper {
+  float: left;
+  margin: 8px 30px 0 0;
+  position: relative;
+}
+.model-info .choose-icon-wrapper .model-type {
+  background-color: #dcfde2;
+  border-radius: 4px;
+  color: #34ce5c;
+  font-size: 20px;
+  font-weight: 700;
+  left: 30px;
+  line-height: 32px;
+  padding: 0 8px;
+  position: absolute;
+  top: -12px;
+  transform: scale(0.5);
+  transform-origin: left center;
+  white-space: nowrap;
+  z-index: 2;
+}
+.model-info .choose-icon-wrapper .is-builtin {
+  background-color: #ffb23a;
+  color: #fff;
+}
+.model-info .choose-icon-wrapper .model-type:after {
+  border-right: 10px solid transparent;
+  border-top: 0px solid #ffb23a;
+  content: "";
+  height: 0;
+  left: 10px;
+  position: absolute;
+  top: 100%;
+  -webkit-transform: skew(-15deg);
+  transform: skew(-15deg);
+  -webkit-transform-origin: left top;
+  transform-origin: left top;
+  width: 0;
+}
+.model-info .choose-icon-wrapper .model-type .is-builtin:after {
+  border-top-color: #ffb23a;
+  border-top: 8px solid #ffb23a;
+}
+.model-info .choose-icon-wrapper .icon-box {
+  background: #fff;
+  border: 1px solid #dde4eb;
+  border-radius: 50%;
+  color: #3c96ff;
+  font-size: 20px;
+  height: 54px;
+  padding-top: 10px;
+  text-align: center;
+  width: 54px;
+  cursor: default;
+}
+.model-info .model-info-box {
+  display: flex;
+  width: 76%;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: start;
+  padding: 0 20px;
+}
+.model-info .model-info-box .model-text {
+  float: left;
+  font-size: 0;
+  line-height: 36px;
+  margin: 14px 30px 0 0;
+  display: flex;
+  align-items: center;
+}
+.model-info .model-info-box .model-text > span {
+  color: #737987;
+  display: inline-block;
+  font-size: 14px;
+  height: 36px;
+  vertical-align: middle;
+}
+.model-info .model-info-box .model-text .text-content {
+  color: #333948;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.model-info .model-info-box .model-text .icon-edit,
+.model-info .model-info-box .model-text .edit-button {
+  margin-left: 4px;
+  color: #3a84ff;
+  cursor: pointer;
+}
+.model-info .model-info-box .model-text .text-content-count {
+  color: #3a84ff;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.model-info .model-info-box .model-text .text-content-count .right-icon-box {
+  height: 18px;
+  margin-left: 6px;
+}
+.model-info .model-info-box .model-text .time {
+  color: #333948;
+  cursor: auto;
+}
+.model-info .model-info-box .ml10 {
+  margin-left: 10px;
+}
+.model-info .btn-group {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  float: right;
+  height: 70px;
+  width: 20%;
+  line-height: 70px;
+  color: #63656e;
+}
+.model-info .btn-group .label-btn {
+  cursor: pointer;
+  margin-left: 10px;
+  line-height: normal;
+  outline: 0;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+}
+.model-info .btn-group .label-btn > span {
+  padding-left: 6px;
+}
+.model-info .btn-group .is-disabled {
+  color: #999;
+  cursor: not-allowed;
+}
+.model-info .btn-group .auth-box {
+  display: inline-block;
+}
+.model-info-bottom {
+  height: 130px;
+}

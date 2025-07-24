@@ -1,0 +1,32 @@
+.circle-container {
+  display: flex;
+  justify-content: center;
+  /* 水平居中 */
+  flex-direction: column;
+  align-items: center;
+  /* 垂直居中 */
+  height: 20vh;
+  /* 占满视口高度 */
+}
+.circle {
+  width: 6em;
+  height: 6em;
+  display: flex;
+  /* 让内容居中 */
+  justify-content: center;
+  /* 图标水平居中 */
+  align-items: center;
+  /* 图标垂直居中 */
+  border-radius: 50%;
+  /* 圆形的关键样式 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* 添加一些阴影效果 */
+  cursor: pointer;
+}
+.circle-icon {
+  display: inline-block;
+  /* 确保图标正确显示 */
+}
+.selectIcon {
+  padding-top: 2vh;
+}

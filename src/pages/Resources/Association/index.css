@@ -1,0 +1,13 @@
+.relation-view {
+  min-height: calc(700px - 62px);
+  overflow: auto;
+  margin-top: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.drawerSearchBox {
+  margin-bottom: 20px;
+}
+.table-container {
+  margin-top: 20px;
+}

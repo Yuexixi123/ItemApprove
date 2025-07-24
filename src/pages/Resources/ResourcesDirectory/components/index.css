@@ -1,0 +1,49 @@
+.masonry-grid {
+  display: flex;
+  margin-left: -16px;
+  width: auto;
+}
+.masonry-grid-column {
+  padding-left: 16px;
+  background-clip: padding-box;
+}
+.card {
+  margin-bottom: 16px;
+}
+.card .ant-card-body {
+  padding: 0;
+}
+.card .card-item {
+  cursor: pointer;
+  font-size: 0;
+  padding: 8px 20px;
+  position: relative;
+  margin: 6px 0;
+}
+.card .card-item .model-icon {
+  color: #3a84ff;
+  float: left;
+  font-size: 16px;
+}
+.card .card-item .model-name {
+  color: #63656e;
+  font-size: 14px;
+  line-height: 24px;
+  margin: 0 0 0 12px;
+  max-width: calc(100% - 100px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.card .card-item .model-count {
+  color: #c4c6cc;
+  float: right;
+  font-size: 14px;
+  line-height: 24px;
+  text-align: right;
+  vertical-align: middle;
+  width: 35px;
+}
+.card-item:hover {
+  background-color: #ecf3ff;
+}
