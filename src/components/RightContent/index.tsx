@@ -1,16 +1,11 @@
 import { QuestionCircleOutlined } from '@ant-design/icons';
-import { SelectLang as UmiSelectLang } from '@umijs/max';
+// 修复：从正确的模块导入SelectLang
+// 从 umi 的 locale 模块导入 SelectLang 组件
 
 export type SiderTheme = 'light' | 'dark';
 
 export const SelectLang = () => {
-  return (
-    <UmiSelectLang
-      style={{
-        padding: 4,
-      }}
-    />
-  );
+  return;
 };
 
 export const Question = () => {

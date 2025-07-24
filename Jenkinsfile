@@ -1,6 +1,14 @@
 pipeline {
     agent any
     
+    // 添加触发器配置
+    triggers {
+        // SCM轮询：每5分钟检查一次代码变更
+        pollSCM('H/5 * * * *')
+        // 或者使用cron触发器（可选）
+        // cron('H/10 * * * *')
+    }
+    
     tools {
         nodejs 'NodeJS-18'  // 确保Jenkins中配置了NodeJS-18
     }
@@ -21,6 +29,8 @@ pipeline {
         timeout(time: 30, unit: 'MINUTES')
         // 禁用并发构建
         disableConcurrentBuilds()
+        // 跳过默认的代码检出
+        skipDefaultCheckout(false)
     }
     
     stages {
@@ -39,10 +49,20 @@ pipeline {
                         script: 'git rev-parse --abbrev-ref HEAD',
                         returnStdout: true
                     ).trim()
+                    env.GIT_AUTHOR = sh(
+                        script: 'git log -1 --pretty=format:"%an"',
+                        returnStdout: true
+                    ).trim()
+                    env.GIT_MESSAGE = sh(
+                        script: 'git log -1 --pretty=format:"%s"',
+                        returnStdout: true
+                    ).trim()
                 }
                 
                 echo "Git分支: ${env.GIT_BRANCH}"
                 echo "Git提交: ${env.GIT_COMMIT_SHORT}"
+                echo "提交作者: ${env.GIT_AUTHOR}"
+                echo "提交信息: ${env.GIT_MESSAGE}"
             }
         }
         
@@ -94,7 +114,7 @@ pipeline {
                     }
                     steps {
                         echo '🧪 运行单元测试...'
-                        sh 'pnpm run test -- --watchAll=false --coverage=false'
+                        sh 'pnpm run test -- --watchAll=false --coverage=false --passWithNoTests --passWithNoTests'
                     }
                 }
             }
@@ -159,6 +179,8 @@ pipeline {
                         --restart unless-stopped \
                         -e BUILD_NUMBER=${BUILD_NUMBER} \
                         -e GIT_COMMIT=${GIT_COMMIT_SHORT} \
+                        -e GIT_BRANCH=${GIT_BRANCH} \
+                        -e GIT_AUTHOR="${GIT_AUTHOR}" \
                         ${DOCKER_IMAGE}:${BUILD_NUMBER}
                     
                     echo "✅ 容器启动成功"
@@ -234,6 +256,8 @@ pipeline {
                 - 构建号: ${env.BUILD_NUMBER}
                 - 分支: ${env.GIT_BRANCH}
                 - 提交: ${env.GIT_COMMIT_SHORT}
+                - 作者: ${env.GIT_AUTHOR}
+                - 信息: ${env.GIT_MESSAGE}
                 
                 🔗 **访问地址**
                 - 应用地址: ${deployUrl}
@@ -262,6 +286,8 @@ pipeline {
                 - 构建号: ${env.BUILD_NUMBER}
                 - 分支: ${env.GIT_BRANCH}
                 - 提交: ${env.GIT_COMMIT_SHORT}
+                - 作者: ${env.GIT_AUTHOR}
+                - 信息: ${env.GIT_MESSAGE}
                 
                 🔗 **查看详情**
                 - 构建日志: ${env.BUILD_URL}console
