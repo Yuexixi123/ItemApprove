@@ -15,7 +15,7 @@ const Settings: ProLayoutProps & {
   fixedHeader: false,
   fixSiderbar: true,
   colorWeak: false,
-  title: 'Master-CMDB',
+  title: 'IT资源管理配置平台',
   pwa: true,
   iconfontUrl: '',
   splitMenus: true,

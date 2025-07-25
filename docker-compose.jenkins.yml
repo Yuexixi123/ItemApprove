@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      # Jenkins数据持久化
+      - ./jenkins-data:/var/jenkins_home
+      # Docker socket挂载（用于构建Docker镜像）
+      - /var/run/docker.sock:/var/run/docker.sock
+      # 挂载项目目录
+      - .:/workspace/mycmdb
+    environment:
+      - JENKINS_OPTS=--httpPort=8080
+      # 跳过初始设置向导（可选）
+      # - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    networks:
+      - jenkins-network
+    user: root
+
+  # Node.js构建环境（独立容器，用于构建前端项目）
+  nodejs-builder:
+    image: node:18-alpine
+    container_name: nodejs-builder
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    command: tail -f /dev/null  # 保持容器运行
+    networks:
+      - jenkins-network
+    profiles:
+      - builder  # 可选启动
+
+networks:
+  jenkins-network:
+    driver: bridge
