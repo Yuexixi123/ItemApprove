@@ -9,7 +9,7 @@ const waitTime = (time: number = 100) => {
 };
 
 export default {
-  'GET /api/v1/home/menu': async (req: Request, res: Response) => {
+  'GET /api/home/menu': async (req: Request, res: Response) => {
     await waitTime(200);
     res.send({
       code: 0,

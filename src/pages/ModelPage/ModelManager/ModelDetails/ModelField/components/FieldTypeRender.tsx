@@ -98,6 +98,8 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
   const [multiDefaultValue, setMultiDefaultValue] = useState<string[]>(
     Array.isArray(values?.attr_default) ? values.attr_default : [],
   );
+  // 添加本地状态来跟踪当前的选项值
+  const [currentOptions, setCurrentOptions] = useState<Record<string, any>>({});
   // 使用 userModel 获取用户列表
   const { userOptions } = useModel('user', (model) => ({
     userOptions: model.userOptions,
@@ -105,12 +107,19 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
 
   const { message } = App.useApp();
 
-  // 用于收集字段值变化的函数
-  const handleFieldChange = (fieldName: string, value: any) => {
-    if (onOptionsChange && fieldName !== 'attr_default') {
-      onOptionsChange({ [fieldName]: value });
+  // 初始化currentOptions
+  React.useEffect(() => {
+    if (values?.option?.[0]) {
+      setCurrentOptions(values.option[0]);
     }
-  };
+  }, [values]);
+
+  // 用于收集字段值变化的函数（保留用于其他字段类型）
+  // const handleFieldChange = (fieldName: string, value: any) => {
+  //   if (onOptionsChange && fieldName !== 'attr_default') {
+  //     onOptionsChange({ [fieldName]: value });
+  //   }
+  // };
 
   // 枚举值状态管理
   const [enumValues, setEnumValues] = useState<{ value: string; label: string }[]>(
@@ -167,6 +176,21 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
   if (fieldType === 'text') {
     const regxp = values?.option?.[0]?.regxp || '';
 
+    // 处理文本类型字段的选项变更
+    const handleTextFieldChange = (fieldName: string, value: any) => {
+      if (onOptionsChange) {
+        // 使用本地状态来获取当前的选项值，确保不会丢失其他字段
+        const newOptions = {
+          ...currentOptions,
+          [fieldName]: value,
+        };
+        // 更新本地状态
+        setCurrentOptions(newOptions);
+        // 直接传递完整的选项对象，而不是嵌套的对象
+        onOptionsChange([newOptions]);
+      }
+    };
+
     return (
       <div className="field-detail">
         <ProFormTextArea
@@ -175,7 +199,7 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
           placeholder="请输入"
           initialValue={regxp}
           fieldProps={{
-            onChange: (e) => handleFieldChange('regxp', e.target.value),
+            onChange: (e) => handleTextFieldChange('regxp', e.target.value),
           }}
           disabled={!!values?.attr_id && values?.is_builtin} // 如果是编辑模式，禁用该字段
         />
@@ -213,10 +237,50 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
     );
   }
 
+  if (fieldType === 'user_multi') {
+    return (
+      <div className="field-detail">
+        <ProFormSelect
+          name="attr_default"
+          label="默认值"
+          showSearch
+          mode="multiple"
+          options={userOptions}
+          fieldProps={{
+            filterOption: (input, option) => {
+              return (
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase()) ||
+                !!pinyinMatch.match((option?.label ?? '').toString(), input)
+              );
+            },
+            virtual: true,
+            listHeight: 400,
+          }}
+          disabled={!!values?.attr_id && values?.is_builtin} // 如果是编辑模式，禁用该字段
+        />
+      </div>
+    );
+  }
+
   if (fieldType === 'number' || fieldType === 'float') {
-    // 从 values.option[0] 中获取 min_value 和 max_value
-    const minValue = values?.option?.[0]?.min_value || '';
-    const maxValue = values?.option?.[0]?.max_value || '';
+    // 从 currentOptions 中获取 min_value 和 max_value
+    const minValue = currentOptions?.min_value || values?.option?.[0]?.min_value || '';
+    const maxValue = currentOptions?.max_value || values?.option?.[0]?.max_value || '';
+
+    // 处理数字类型字段的选项变更
+    const handleNumberFieldChange = (fieldName: string, value: any) => {
+      if (onOptionsChange) {
+        // 使用本地状态来获取当前的选项值，确保不会丢失其他字段
+        const newOptions = {
+          ...currentOptions,
+          [fieldName]: value,
+        };
+        // 更新本地状态
+        setCurrentOptions(newOptions);
+        // 直接传递完整的选项对象，而不是嵌套的对象
+        onOptionsChange([newOptions]);
+      }
+    };
 
     return (
       <div className="field-detail">
@@ -226,7 +290,7 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
           placeholder="请输入短字符"
           initialValue={minValue}
           fieldProps={{
-            onChange: (e) => handleFieldChange('min_value', e.target.value),
+            onChange: (e) => handleNumberFieldChange('min_value', e.target.value),
           }}
           disabled={!!values?.attr_id && values?.is_builtin} // 如果是编辑模式，禁用该字段
         />
@@ -236,7 +300,7 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
           placeholder="请输入短字符"
           initialValue={maxValue}
           fieldProps={{
-            onChange: (e) => handleFieldChange('max_value', e.target.value),
+            onChange: (e) => handleNumberFieldChange('max_value', e.target.value),
           }}
           disabled={!!values?.attr_id && values?.is_builtin} // 如果是编辑模式，禁用该字段
         />
@@ -275,6 +339,22 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
 
   if (fieldType === 'long_text') {
     const regxp = values?.option?.[0]?.regxp || '';
+
+    // 处理长文本类型字段的选项变更
+    const handleLongTextFieldChange = (fieldName: string, value: any) => {
+      if (onOptionsChange) {
+        // 使用本地状态来获取当前的选项值，确保不会丢失其他字段
+        const newOptions = {
+          ...currentOptions,
+          [fieldName]: value,
+        };
+        // 更新本地状态
+        setCurrentOptions(newOptions);
+        // 直接传递完整的选项对象，而不是嵌套的对象
+        onOptionsChange([newOptions]);
+      }
+    };
+
     return (
       <div className="field-detail">
         <ProFormTextArea
@@ -283,7 +363,7 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
           placeholder="请输入"
           initialValue={regxp}
           fieldProps={{
-            onChange: (e) => handleFieldChange('regxp', e.target.value),
+            onChange: (e) => handleLongTextFieldChange('regxp', e.target.value),
           }}
           disabled={!!values?.attr_id && values?.is_builtin} // 如果是编辑模式，禁用该字段
         />
@@ -297,22 +377,22 @@ const FieldTypeRender = ({ fieldType, onOptionsChange, values }: FieldTypeRender
     );
   }
 
-  if (fieldType === 'api') {
-    return (
-      <div className="field-detail">
-        <ProFormText
-          name="api_url"
-          label="接口URL"
-          placeholder="请输入用于获取下拉选项的接口地址"
-          initialValue={values?.option?.[0]?.api_url || ''}
-          fieldProps={{
-            onChange: (e) => handleFieldChange('api_url', e.target.value),
-          }}
-          disabled={!!values?.attr_id && values?.is_builtin}
-        />
-      </div>
-    );
-  }
+  // if (fieldType === 'api') {
+  //   return (
+  //     <div className="field-detail">
+  //       <ProFormText
+  //         name="api_url"
+  //         label="接口URL"
+  //         placeholder="请输入用于获取下拉选项的接口地址"
+  //         initialValue={values?.option?.[0]?.api_url || ''}
+  //         fieldProps={{
+  //           onChange: (e) => handleFieldChange('api_url', e.target.value),
+  //         }}
+  //         disabled={!!values?.attr_id && values?.is_builtin}
+  //       />
+  //     </div>
+  //   );
+  // }
 
   if (fieldType === 'timezone') {
     return (

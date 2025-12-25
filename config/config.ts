@@ -146,5 +146,8 @@ export default defineConfig({
   mako: {},
   esbuildMinifyIIFE: true,
   requestRecord: {},
+  publicPath: '/cmdb/',
+  base: '/cmdb/',
+  outputPath: 'dist/cmdb',
   // mock: false,
 });

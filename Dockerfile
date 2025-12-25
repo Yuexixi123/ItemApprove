@@ -1,19 +1,7 @@
-# 多阶段构建 - 构建阶段
-FROM node:18-alpine AS builder
+# 多阶段构建 - 基于基础镜像构建最终应用
+FROM cmdb-web:base AS builder
 
-# 设置工作目录
-WORKDIR /app
-
-# 复制package文件
-COPY package.json pnpm-lock.yaml ./
-
-# 安装pnpm
-RUN npm install -g pnpm
-
-# 安装依赖
-RUN pnpm install --frozen-lockfile
-
-# 复制源代码
+# 复制源代码（基础镜像已经包含依赖，这里只复制源码）
 COPY . .
 
 # 构建应用

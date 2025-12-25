@@ -1,17 +1,31 @@
 import { AvatarDropdown, AvatarName } from '@/components';
+import NoticeIcon from '@/components/NoticeIcon';
 // import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
 import type { Settings as LayoutSettings, MenuDataItem } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
 import { history } from '@umijs/max';
-import { lazy, Suspense } from 'react'; // 使用 React 的 lazy 和 Suspense
+import React, { lazy, Suspense } from 'react'; // 使用 React 的 lazy 和 Suspense
 import defaultSettings from '../config/defaultSettings';
 import { fetchMenuFromApi } from '@/services/getMenu';
 import * as Icons from '@ant-design/icons';
 import { App, Spin } from 'antd';
 import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal } from 'react';
+import { setNotificationInstance } from '@/utils/notification';
 // 导入请求配置
 import { requestConfig } from '@/services/requestConfig';
+
+// AppWrapper组件用于获取App context
+const AppWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { notification } = App.useApp();
+
+  // 设置全局notification实例
+  React.useEffect(() => {
+    setNotificationInstance(notification);
+  }, [notification]);
+
+  return <>{children}</>;
+};
 
 // // 添加控制台警告过滤，忽略 findDOMNode 警告
 // if (process.env.NODE_ENV !== 'production') {
@@ -91,24 +105,43 @@ export async function getInitialState(): Promise<{
   menus?: Menu.MenuItem[];
   fetchMenus?: () => Promise<Menu.MenuItem[]>;
 }> {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+
+  if (token) {
+    localStorage.setItem('access_token', token);
+
+    try {
+      // 解析 JWT token
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        window
+          .atob(base64)
+          .split('')
+          .map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join(''),
+      );
+
+      const payload = JSON.parse(jsonPayload);
+      if (payload.name) localStorage.setItem('userName', payload.name);
+      if (payload.cname) localStorage.setItem('userCName', payload.cname);
+      if (payload.id) localStorage.setItem('userId', payload.id);
+    } catch (e) {
+      console.error('解析 Token 失败:', e);
+    }
+  }
   // 初始化时设置loading为true
   let loading = true;
 
   const fetchUserInfo = async () => {
-    // try {
-    //   const msg = await queryCurrentUser({
-    //     skipErrorHandler: true,
-    //   });
-    //   return msg.data;
-    // } catch (error) {
-    //   history.push(loginPath);
-    // }
-
-    // return undefined;
-
+    const token = localStorage.getItem('access_token');
+    if (!token) return undefined;
     return {
-      name: localStorage.getItem('userCName') || 'Serati Ma',
-      userid: localStorage.getItem('userId') || '00000001',
+      name: localStorage.getItem('userCName') || localStorage.getItem('userName') || '',
+      userid: localStorage.getItem('userId') || '',
       access: 'admin',
     };
   };
@@ -205,6 +238,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
   const processedMenus = processMenuData((initialState?.menus as MenuDataItem[]) || []);
 
   return {
+    actionsRender: () => [<NoticeIcon key="noticeIcon" />],
     avatarProps: {
       src: initialState?.currentUser?.avatar,
       title: <AvatarName />,
@@ -257,7 +291,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     onPageChange: () => {
       const { location } = history;
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
+      if (
+        (!initialState?.currentUser || !localStorage.getItem('access_token')) &&
+        location.pathname !== loginPath
+      ) {
         history.push(loginPath);
       }
     },
@@ -291,20 +328,22 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
 
       return (
         <App>
-          {children}
-          {isDev && (
-            <SettingDrawer
-              disableUrlParams
-              enableDarkTheme
-              settings={initialState?.settings}
-              onSettingChange={(settings) => {
-                setInitialState((preInitialState) => ({
-                  ...preInitialState,
-                  settings,
-                }));
-              }}
-            />
-          )}
+          <AppWrapper>
+            {children}
+            {isDev && (
+              <SettingDrawer
+                disableUrlParams
+                enableDarkTheme
+                settings={initialState?.settings}
+                onSettingChange={(settings) => {
+                  setInitialState((preInitialState) => ({
+                    ...preInitialState,
+                    settings,
+                  }));
+                }}
+              />
+            )}
+          </AppWrapper>
         </App>
       );
     },

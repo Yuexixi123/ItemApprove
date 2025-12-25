@@ -9,7 +9,7 @@ export async function getModelList(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.ModelListResponse>('/v1/model', {
+  return request<API.ModelListResponse>('/model', {
     method: 'GET',
     params: {
       ...params,
@@ -22,7 +22,7 @@ export async function getModelList(
 
 /** 获取模型名称列表 GET /model/model_name */
 export async function getModelNames(options?: { [key: string]: any }) {
-  return request<API.ModelNameResponse>('/v1/model/model_name', {
+  return request<API.ModelNameResponse>('/model/model_name', {
     method: 'GET',
     params: {
       ...options,
@@ -32,7 +32,7 @@ export async function getModelNames(options?: { [key: string]: any }) {
 
 /** 创建新模型 POST /model */
 export async function createModel(body: API.CreateModelRequest, options?: { [key: string]: any }) {
-  return request<API.CreateModelResponse>('/v1/model', {
+  return request<API.CreateModelResponse>('/model', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export async function createModel(body: API.CreateModelRequest, options?: { [key
 
 /** 更新模型 PATCH /model */
 export async function updateModel(body: API.UpdateModelRequest, options?: { [key: string]: any }) {
-  return request<API.UpdateModelResponse>('/v1/model', {
+  return request<API.UpdateModelResponse>(`/model/${body.model_id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ export async function updateModel(body: API.UpdateModelRequest, options?: { [key
 
 /** 获取唯一校验列表 GET /model/rule/${model_id} */
 export async function getUniqueRules(model_id: number, options?: { [key: string]: any }) {
-  return request<API.UniqueRuleResponse>(`/v1/model/rule/${model_id}`, {
+  return request<API.UniqueRuleResponse>(`/model/rule/${model_id}`, {
     method: 'GET',
     params: {
       ...options,
@@ -70,7 +70,7 @@ export async function createUniqueRule(
   body: API.CreateUniqueRuleRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.CreateUniqueRuleResponse>(`/v1/model/rule/${model_id}`, {
+  return request<API.CreateUniqueRuleResponse>(`/model/rule/${model_id}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ export async function createUniqueRule(
 
 /** 删除唯一校验 DELETE /model/rule/${rule_id} */
 export async function deleteUniqueRule(rule_id: number, options?: { [key: string]: any }) {
-  return request<API.DeleteUniqueRuleResponse>(`/v1/model/rule/${rule_id}`, {
+  return request<API.DeleteUniqueRuleResponse>(`/model/rule/${rule_id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ export async function updateUniqueRule(
   body: API.UpdateUniqueRuleRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.UpdateUniqueRuleResponse>(`/v1/model/rule/${rule_id}`, {
+  return request<API.UpdateUniqueRuleResponse>(`/model/rule/${rule_id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export async function updateUniqueRule(
 }
 /** 删除模型 DELETE /model */
 export async function deleteModel(params: API.DeleteModelParams, options?: { [key: string]: any }) {
-  return request<API.DeleteModelResponse>('/v1/model', {
+  return request<API.DeleteModelResponse>(`/model/${params.model_id}`, {
     method: 'DELETE',
     params: {
       ...params,
@@ -118,7 +118,7 @@ export async function deleteModel(params: API.DeleteModelParams, options?: { [ke
 }
 
 export async function saveColumnSettings(payload: API.ColumnSettingPayload[]) {
-  return request('/v1/column-settings', {
+  return request('/column-settings', {
     method: 'POST',
     data: payload,
   });

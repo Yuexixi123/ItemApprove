@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
 import { getModelResourceNames, getResourceNameRelationship } from '@/services/resources/api';
-import { message } from 'antd';
+import { App } from 'antd';
 
 export default function useSelectOption() {
+  const { message } = App.useApp();
   // 模型资源名称列表状态
   const [modelResourceNames, setModelResourceNames] = useState<API.ResourceNameItem[]>([]);
   // 关联资源名称列表状态

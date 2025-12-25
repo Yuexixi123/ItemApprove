@@ -4,8 +4,9 @@
 declare namespace API {
   // 资源列表分页参数
   interface ResourceListParams {
-    current?: number;
-    page_size?: number;
+    current: number;
+    page_size: number;
+    no_page_size?: boolean;
     id?: number; // 资源ID，可选
     key?: string; // 资源实例名字段，可选
     create_name?: number; // 创建人，可选
@@ -51,7 +52,9 @@ declare namespace API {
     is_display: boolean; // 是否显示在表格中
     attr_index: number; // 列排序顺序
     editable: boolean; // 是否可编辑
+    attr_default: any; // 属性默认值
     is_form_show: boolean; // 是否在表单中显示
+    is_search?: boolean; // 是否可搜索
     api_url: string; // 关联api
   }
 

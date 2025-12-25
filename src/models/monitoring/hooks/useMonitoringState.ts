@@ -14,12 +14,16 @@ export const useMonitoringState = () => {
   // 选项状态
   const [systemOptions, setSystemOptions] = useState<{ label: string; value: string }[]>([]);
   const [hostOptions, setHostOptions] = useState<{ label: string; value: string }[]>([]);
-  const [monitoringItemModelOptions, setMonitoringItemModelOptions] =
-    useState<MonitoringItem.ModelNameItem[]>();
+  const [monitoringItemModelOptions, setMonitoringItemModelOptions] = useState<
+    MonitoringItem.ModelNameItem[]
+  >([]);
 
   // 资源数据状态
   const [modelResourcesData, setModelResourcesData] = useState<Record<string, any[]>>({});
   const [resourcesLoading, setResourcesLoading] = useState<Record<string, boolean>>({});
+
+  // 创建审批状态
+  const [createApprovalLoading, setCreateApprovalLoading] = useState<boolean>(false);
 
   return {
     // 基础状态
@@ -45,5 +49,9 @@ export const useMonitoringState = () => {
     setModelResourcesData,
     resourcesLoading,
     setResourcesLoading,
+
+    // 创建审批状态
+    createApprovalLoading,
+    setCreateApprovalLoading,
   };
 };

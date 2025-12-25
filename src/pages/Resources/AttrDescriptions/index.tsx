@@ -38,7 +38,7 @@ const AttrDescriptions = forwardRef<any, AttrDescriptionsProps>(
         const modelId = params.id;
         if (propResourceId && modelId) {
           fetchResourceDetail(Number(propResourceId), Number(modelId));
-          fetchModelAttributes(Number(modelId));
+          fetchModelAttributes(Number(modelId), true); // 强制刷新属性数据
         }
       },
     }));
@@ -48,8 +48,9 @@ const AttrDescriptions = forwardRef<any, AttrDescriptionsProps>(
       const modelId = params.id; // 从URL路径获取modelId
 
       if (propResourceId && modelId) {
+        // 每次进入页面都强制刷新属性数据，不使用缓存
         fetchResourceDetail(Number(propResourceId), Number(modelId));
-        fetchModelAttributes(Number(modelId));
+        fetchModelAttributes(Number(modelId), true); // 第二个参数为true，强制刷新
       }
     }, [propResourceId, params.id]); // 移除函数依赖，避免无限循环
 
@@ -97,7 +98,7 @@ const AttrDescriptions = forwardRef<any, AttrDescriptionsProps>(
               loading={resourceDetailLoading}
               dataSource={resourceRecord || {}} // 使用dataSource而不是params
               columns={columns as ProDescriptionsItemProps<any>[]}
-            ></ProDescriptions>
+            />
           </ul>
         </li>
       </ul>

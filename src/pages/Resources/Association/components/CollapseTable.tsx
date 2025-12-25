@@ -28,9 +28,14 @@ const CollapseTable: React.FC<CollapseTableProps> = ({
   // 使用本地状态而不是全局状态
   const [relatedResources, setRelatedResources] = useState<API.RelatedResourceItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
   // 获取关联资源数据的方法
-  const fetchData = async () => {
+  const fetchData = async (current = pagination.current, pageSize = pagination.pageSize) => {
     if (!modelId || !resourceId || !relationshipId) {
       return;
     }
@@ -40,12 +45,18 @@ const CollapseTable: React.FC<CollapseTableProps> = ({
       const response = await getModelRelatedResources(modelId, {
         rel_id: relationshipId,
         resource_id: resourceId,
-        current: 1,
-        page_size: 10,
+        current,
+        page_size: pageSize,
       });
 
       if (response.inside_code === 0 && response.data) {
         setRelatedResources(response.data.data || []);
+        setPagination((prev) => ({
+          ...prev,
+          current,
+          pageSize,
+          total: response.data.pagination?.total || 0,
+        }));
       }
     } catch (error) {
       console.error('获取关联资源出错:', error);
@@ -144,6 +155,12 @@ const CollapseTable: React.FC<CollapseTableProps> = ({
     ];
   };
 
+  // 处理分页变化
+  const handleTableChange = (page: number, pageSize?: number) => {
+    const newPageSize = pageSize || pagination.pageSize;
+    fetchData(page, newPageSize);
+  };
+
   // 为表格数据添加 key
   const dataSource = relatedResources.map((item) => ({
     ...item,
@@ -158,9 +175,14 @@ const CollapseTable: React.FC<CollapseTableProps> = ({
         dataSource={dataSource}
         loading={loading}
         pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
           showSizeChanger: true,
           showQuickJumper: true,
           showTotal: (total) => `共 ${total} 条`,
+          onChange: handleTableChange,
+          onShowSizeChange: handleTableChange,
         }}
       />
     </div>

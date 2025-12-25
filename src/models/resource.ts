@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
 import { getModelAttributes, getResourceDetail } from '@/services/resources/api';
-import { message } from 'antd';
+import { App } from 'antd';
 
 // 创建一个缓存对象，用于存储已获取的模型属性
 const attributesCache = new Map<number, API.ModelAttributeItem[]>();
 
 export default () => {
+  const { message } = App.useApp();
   const [attributesLoading, setAttributesLoading] = useState<boolean>(false);
   const [modelAttributes, setModelAttributes] = useState<API.ModelAttributeItem[]>([]);
   const [resourceRecord, setResourceRecord] = useState<API.ResourceItem | null>(null);

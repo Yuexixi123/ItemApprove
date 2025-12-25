@@ -8,7 +8,7 @@ export async function getAssociationTypes(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.AssociationTypeResponse>('/v1/association_type', {
+  return request<API.AssociationTypeResponse>('/association_type', {
     method: 'GET',
     params,
     ...(options || {}),
@@ -20,7 +20,7 @@ export async function createAssociationType(
   body: API.CreateAssociationTypeRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>('/v1/association_type', {
+  return request<API.BaseResponse>('/association_type', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export async function createAssociationType(
 
 /** 删除关联类型 DELETE /association_type/${asst_id} */
 export async function deleteAssociationType(asst_id: number, options?: { [key: string]: any }) {
-  return request<API.BaseResponse>(`/v1/association_type/${asst_id}`, {
+  return request<API.BaseResponse>(`/association_type/${asst_id}`, {
     method: 'DELETE',
     ...(options || {}),
   });
@@ -44,7 +44,7 @@ export async function updateAssociationType(
   body: API.UpdateAssociationTypeRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>(`/v1/association_type/${asst_id}`, {
+  return request<API.BaseResponse>(`/association_type/${asst_id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

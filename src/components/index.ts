@@ -10,6 +10,7 @@ import Footer from './Footer';
 import HeaderDropdown from './HeaderDropdown';
 import { Question, SelectLang } from './RightContent';
 import { AvatarDropdown, AvatarName } from './RightContent/AvatarDropdown';
+import NoticeIcon from './NoticeIcon';
 
 /**
  * 功能组件
@@ -22,7 +23,7 @@ import CustomProTable from './MyProTable/CustomProTable';
  * 导出所有组件
  */
 // 布局组件
-export { AvatarDropdown, AvatarName, Footer, HeaderDropdown, Question, SelectLang };
+export { AvatarDropdown, AvatarName, Footer, HeaderDropdown, NoticeIcon, Question, SelectLang };
 
 // 功能组件
 export { CircleWithIcon, CustomProTable, LookForm };

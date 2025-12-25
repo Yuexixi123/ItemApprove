@@ -22,9 +22,9 @@ const columnsRender = (
   // 列定义保持不变
   {
     title: '唯一标识',
-    dataIndex: 'rel_id',
+    dataIndex: 'rel_key',
     hideInDescriptions: true,
-    key: 'rel_id',
+    key: 'rel_key',
     render: (text, record) => (
       <a
         onClick={() => {
@@ -38,11 +38,11 @@ const columnsRender = (
   },
   {
     title: '唯一标识',
-    dataIndex: 'rel_id',
+    dataIndex: 'rel_key',
     hideInForm: true,
     hideInSearch: true,
     hideInTable: true,
-    key: 'rel_id',
+    key: 'rel_key',
   },
   {
     title: '关联类型',

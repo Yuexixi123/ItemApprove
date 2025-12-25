@@ -12,6 +12,7 @@ export const useMonitoringData = () => {
     setResourcesLoading,
     setModelAttributes,
     setLoading,
+    setCreateApprovalLoading,
     ...state
   } = useMonitoringState();
 
@@ -22,11 +23,8 @@ export const useMonitoringData = () => {
     const data = await MonitoringService.fetchMonitoringItemModelNames();
     setMonitoringItemModelOptions(data);
     return data;
-  }, [setMonitoringItemModelOptions]);
+  }, []); // 移除setState依赖，因为React保证setState函数引用稳定
 
-  /**
-   * 获取模型资源数据
-   */
   /**
    * 获取模型资源数据
    */
@@ -49,7 +47,7 @@ export const useMonitoringData = () => {
         setResourcesLoading((prev) => ({ ...prev, [modelKey]: false }));
       }
     },
-    [setResourcesLoading, setModelResourcesData],
+    [], // 移除setState依赖，因为React保证setState函数引用稳定
   );
 
   /**
@@ -68,7 +66,7 @@ export const useMonitoringData = () => {
         setLoading(false);
       }
     },
-    [setLoading, setModelAttributes],
+    [], // 移除setState依赖
   );
 
   /**
@@ -83,7 +81,52 @@ export const useMonitoringData = () => {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, setModelAttributes]);
+  }, []); // 移除setState依赖
+
+  /**
+   * 获取监控项审批详情
+   */
+  const fetchMonitoringItemApprovalDetail = useCallback(async (itemApprovalId: number) => {
+    setLoading(true);
+    try {
+      const result = await MonitoringService.fetchMonitoringItemApprovalDetail(itemApprovalId);
+      return result;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * 创建监控项审批
+   */
+  const createMonitoringItemApproval = useCallback(
+    async (data: MonitoringItem.CreateApprovalParams) => {
+      setCreateApprovalLoading(true);
+      try {
+        const result = await MonitoringService.createMonitoringItemApproval(data);
+        return result;
+      } finally {
+        setCreateApprovalLoading(false);
+      }
+    },
+    [], // 移除setState依赖
+  );
+
+  /**
+   * 更新监控项审批
+   */
+  const updateMonitoringItemApproval = useCallback(
+    async (approvalId: number, data: MonitoringItem.UpdateApprovalParams) => {
+      setCreateApprovalLoading(true);
+      try {
+        const result = await MonitoringService.updateMonitoringItemApproval(approvalId, data);
+        return result;
+      } finally {
+        setCreateApprovalLoading(false);
+      }
+    },
+    [], // 移除setState依赖
+  );
 
   return {
     ...state,
@@ -91,5 +134,8 @@ export const useMonitoringData = () => {
     fetchModelResources,
     fetchModelAttributes,
     fetchTriggerModelAttributes,
+    fetchMonitoringItemApprovalDetail,
+    createMonitoringItemApproval,
+    updateMonitoringItemApproval,
   };
 };

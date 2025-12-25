@@ -5,7 +5,7 @@ export async function createModelGroup(
   body: API.CreateModelGroupRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>('/v1/model_group', {
+  return request<API.BaseResponse>('/model_group', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ export async function createModelGroup(
 
 /** 删除模型分组 DELETE /model/group/${modelgroup_id} */
 export async function deleteModelGroup(modelgroup_id: string, options?: { [key: string]: any }) {
-  return request<API.BaseResponse>(`/v1/model_group/${modelgroup_id}`, {
+  return request<API.BaseResponse>(`/model_group/${modelgroup_id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export async function updateModelGroup(
   body: API.UpdateModelGroupRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>(`/v1/model_group/${modelgroup_id}`, {
+  return request<API.BaseResponse>(`/model_group/${modelgroup_id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

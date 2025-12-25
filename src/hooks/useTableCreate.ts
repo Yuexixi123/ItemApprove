@@ -46,26 +46,33 @@ export const useTableCreate = () => {
       return new Promise((resolve) => {
         // Move the async logic inside the executor function
         const executeCreate = async () => {
-          const response = await api(data);
+          try {
+            const response = await api(data);
 
-          if (response && response.inside_code === 0) {
-            // 优先使用接口返回的消息，如果没有则使用传入的successMsg
-            message.success(response.msg || successMsg || '创建成功');
-            // 如果提供了actionRef且autoRefresh为true，刷新表格
-            if (autoRefresh && actionRef && actionRef.current) {
-              actionRef.current.reload();
+            if (response && response.inside_code === 0) {
+              // 优先使用接口返回的消息，如果没有则使用传入的successMsg
+              message.success(response.msg || successMsg || '创建成功');
+              // 如果提供了actionRef且autoRefresh为true，刷新表格
+              if (autoRefresh && actionRef && actionRef.current) {
+                actionRef.current.reload();
+              }
+              // 调用成功回调
+              onSuccess?.(response, data);
+              resolve(true);
+              return;
             }
-            // 调用成功回调
-            onSuccess?.(response, data);
-            resolve(true);
-            return;
-          }
 
-          // 优先使用接口返回的错误消息，如果没有则使用传入的errorMsg
-          message.error(response?.msg || errorMsg);
-          // 调用错误回调
-          onError?.(response, data);
-          resolve(false);
+            // 优先使用接口返回的错误消息，如果没有则使用传入的errorMsg
+            message.error(response?.msg || errorMsg);
+            // 调用错误回调
+            onError?.(response, data);
+            resolve(false);
+          } catch (error: any) {
+            console.error('创建请求异常:', error);
+            message.error(error?.message || errorMsg);
+            onError?.(error, data);
+            resolve(false);
+          }
         };
 
         // Execute the async function

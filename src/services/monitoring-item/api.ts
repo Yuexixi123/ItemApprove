@@ -3,7 +3,7 @@
 import { request } from '@umijs/max';
 
 export async function getMonitoringItemModelNames() {
-  return request<MonitoringItem.ModelNameResponse>('/v1/audit/zabbix_approval/item_model_name', {
+  return request<MonitoringItem.ModelNameResponse>('/audit/zabbix_approval/item_model_name', {
     method: 'GET',
   });
 }
@@ -14,7 +14,7 @@ export async function getMonitoringItemModelNames() {
  * @returns 监控项审批列表数据
  */
 export async function getMonitoringItemApprovalList(params?: MonitoringItem.ApprovalListParams) {
-  return request<MonitoringItem.ApprovalListResponse>('/v1/audit/zabbix_approval/item_approval', {
+  return request<MonitoringItem.ApprovalListResponse>('/audit/zabbix_approval/item_approval', {
     method: 'GET',
     params,
   });
@@ -26,10 +26,24 @@ export async function getMonitoringItemApprovalList(params?: MonitoringItem.Appr
  * @returns 创建结果
  */
 export async function createMonitoringItemApproval(data: MonitoringItem.CreateApprovalParams) {
-  return request<MonitoringItem.CreateApprovalResponse>('/v1/audit/zabbix_approval/item_approval', {
+  return request<MonitoringItem.CreateApprovalResponse>('/audit/zabbix_approval/item_approval', {
     method: 'POST',
     data,
   });
+}
+
+/**
+ * 获取监控项审批详情
+ * @param id 监控项审批ID
+ * @returns 审批详情数据
+ */
+export async function getMonitoringItemApprovalDetail(id: number) {
+  return request<MonitoringItem.ApprovalDetailResponse>(
+    `/audit/zabbix_approval/item_approval/${id}`,
+    {
+      method: 'GET',
+    },
+  );
 }
 
 /**
@@ -43,7 +57,7 @@ export async function updateMonitoringItemApproval(
   data: MonitoringItem.UpdateApprovalParams,
 ) {
   return request<MonitoringItem.UpdateApprovalResponse>(
-    `/v1/audit/zabbix_approval/item_approval/${itemApprovalId}`,
+    `/audit/zabbix_approval/item_approval/${itemApprovalId}`,
     {
       method: 'PATCH',
       data,
@@ -59,7 +73,7 @@ export async function updateMonitoringItemApproval(
 export async function getModelAttributesWithFilter(
   params?: MonitoringItem.ModelAttributeFilterParams,
 ) {
-  return request<MonitoringItem.ModelAttributeFilterResponse>('/v1/resource/model/attribute', {
+  return request<MonitoringItem.ModelAttributeFilterResponse>('/resource/model/attribute', {
     method: 'GET',
     params,
   });
@@ -74,11 +88,8 @@ export async function getModelAttributesWithFilter(
 export async function getMonitoringItemRelatedResources(
   params?: MonitoringItem.RelatedResourceParams,
 ) {
-  return request<MonitoringItem.RelatedResourceResponse>(
-    `/v1/audit/zabbix_approval/relate_resource`,
-    {
-      method: 'GET',
-      params,
-    },
-  );
+  return request<MonitoringItem.RelatedResourceResponse>(`/audit/zabbix_approval/relate_resource`, {
+    method: 'GET',
+    params,
+  });
 }

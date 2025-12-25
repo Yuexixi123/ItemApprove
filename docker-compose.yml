@@ -1,22 +1,47 @@
-version: '3.8'
-
+version: "3.9"
 services:
-  # 前端服务
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "3000:80"
-    environment:
-      - NODE_ENV=production
-    restart: unless-stopped
-    networks:
-      - app-network
+    cmdb-web:
+        image: cmdb-web:v1
+        container_name: cmdb_web
+
+        build:
+            context: .
+            dockerfile: Dockerfile
+
+        restart: on-failure
+
+        ports:
+            - published: 50513
+              target: 80
+              protocol: tcp
+              mode: host
+
+        environment:
+            - NODE_ENV=production
+            - LANG=${LANG:-C.UTF-8}
+
+
+        logging:
+            driver: json-file
+            options:
+                max-size: "10m"
+                max-file: "3"
+                compress: "true"
+                labels: "app=cmdb"
+
+        networks:
+            CmdbNetworks-01:
+                aliases:
+                    - cmdb_web
+                ipv4_address: 172.16.0.5
+
 
 networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  mysql_data:
+    CmdbNetworks-01:
+        name: CmdbNetworks
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.16.0.0/28
+                  gateway: 172.16.0.1

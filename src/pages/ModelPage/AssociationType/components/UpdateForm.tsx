@@ -97,6 +97,7 @@ const UpdateForm = ({
     >
       <ProFormText
         name="asst_key"
+        disabled={!!values?.id}
         label="唯一标识"
         placeholder="请输入英文标识"
         rules={[

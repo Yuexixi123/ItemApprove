@@ -158,6 +158,28 @@ const FieldPerview = ({
               />
             </div>
           );
+        case 'user_multi':
+          return (
+            <div style={commonStyle} key={key}>
+              <ProFormSelect
+                name="attr_default"
+                label="默认值"
+                showSearch
+                mode="multiple"
+                options={userOptions}
+                fieldProps={{
+                  filterOption: (input, option) => {
+                    return (
+                      (option?.label ?? '').toLowerCase().includes(input.toLowerCase()) ||
+                      !!pinyinMatch.match((option?.label ?? '').toString(), input)
+                    );
+                  },
+                  virtual: true,
+                  listHeight: 400,
+                }}
+              />
+            </div>
+          );
         // case 'radio': {
         //     const radioOptions = Array.isArray(child.option) ?
         //         child.option.map(opt => ({ label: opt.label || opt, value: opt.value || opt })) :

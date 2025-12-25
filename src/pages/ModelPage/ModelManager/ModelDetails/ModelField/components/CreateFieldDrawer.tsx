@@ -64,6 +64,8 @@ const CreateFieldDrawer: React.FC<CreateFieldDrawerProps> = ({
   const [fieldOptions, setFieldOptions] = useState<Record<string, any>>([]);
 
   const { message } = App.useApp();
+  // 使用 useRef 来存储 loading 消息的关闭函数，确保在任何情况下都能正确关闭
+  const loadingMessageRef = useRef<() => void>();
 
   const { fetchModelAttributes, modelGroupSelectValue } = useModel(
     'modelDetails',
@@ -85,6 +87,11 @@ const CreateFieldDrawer: React.FC<CreateFieldDrawerProps> = ({
     // 每次打开抽屉时重置表单
     if (drawerVisit) {
       formRef.current?.resetFields();
+      // 确保如果有遗留的 loading 状态，将其清理掉
+      if (loadingMessageRef.current) {
+        loadingMessageRef.current();
+        loadingMessageRef.current = undefined;
+      }
       // 如果是编辑模式且有值，则设置表单值
       if (values) {
         formRef.current?.setFieldsValue(values);
@@ -137,6 +144,8 @@ const CreateFieldDrawer: React.FC<CreateFieldDrawerProps> = ({
       formRef.current?.setFieldsValue({ attr_default: '' });
     } else if (value === 'enum') {
       formRef.current?.setFieldsValue({ attr_default: '' });
+    } else if (value === 'user_multi') {
+      formRef.current?.setFieldsValue({ attr_default: [] });
     } else {
       formRef.current?.setFieldsValue({ attr_default: '' });
     }
@@ -163,10 +172,13 @@ const CreateFieldDrawer: React.FC<CreateFieldDrawerProps> = ({
           option: fieldOptions,
         };
 
-        // 删除表单中其他已经放入option的字段
+        // 删除表单中其他已经放入option的字段，但保留min_value和max_value等重要字段
         Object.keys(fieldOptions).forEach((key) => {
           if (key in formData && formData[key as keyof typeof formData] !== undefined) {
-            delete (formData as any)[key];
+            // 不删除min_value和max_value字段，因为它们需要在表单中保留
+            if (key !== 'min_value' && key !== 'max_value' && key !== 'regxp') {
+              delete (formData as any)[key];
+            }
           }
         });
 
@@ -175,35 +187,22 @@ const CreateFieldDrawer: React.FC<CreateFieldDrawerProps> = ({
         // 创建动态加载消息
         const loadingMessage = message.loading({
           content: values?.attr_id ? '正在更新' : '正在创建',
-          duration: 0, // 设置为0表示不自动关闭
+          duration: 3, // 设置为0表示不自动关闭
         });
 
         try {
+          let result = false;
           if (values?.attr_id) {
             // 编辑模式
-            const updateResult = await handleUpdate({
+            result = await handleUpdate({
               api: (data: API.UpdateAttributeRequest) => updateModelAttribute(values.attr_id, data),
               data: formData as API.UpdateAttributeRequest,
               actionRef,
               onSuccess: () => {
-                loadingMessage(); // 关闭加载消息
                 setDrawerVisit(false);
                 onSuccess?.();
               },
-              onError: () => {
-                // 处理错误，确保表单不再处于加载状态
-                loadingMessage(); // 关闭加载消息
-                return false;
-              },
             });
-            if (updateResult) {
-              fetchModelAttributes();
-              return updateResult;
-            } else {
-              // 这里不需要再次显示错误消息，因为handleUpdate中已经处理了
-              loadingMessage(); // 确保加载消息被关闭
-              return false;
-            }
           } else {
             // 创建模式
             if (!modelId || !attrGroupId) {
@@ -212,30 +211,24 @@ const CreateFieldDrawer: React.FC<CreateFieldDrawerProps> = ({
               return false;
             }
 
-            const createResult = await handleCreate({
+            result = await handleCreate({
               api: (data: API.CreateAttributeRequest) => createModelAttribute(attrGroupId, data),
               data: formData as API.CreateAttributeRequest,
               actionRef,
               onSuccess: () => {
-                loadingMessage(); // 关闭加载消息
-                message.success('字段创建成功');
                 setDrawerVisit(false);
                 onSuccess?.();
               },
-              // onError: (error) => {
-              //     // 处理错误，确保表单不再处于加载状态
-              //     // message.error(error?.message || "创建失败");
-              //     return false;
-              // }
             });
-            if (createResult) {
-              fetchModelAttributes();
-              return createResult;
-            } else {
-              // 这里不需要再次显示错误消息，因为handleCreate中已经处理了
-              loadingMessage(); // 确保加载消息被关闭
-              return false;
-            }
+          }
+
+          loadingMessage(); // 无论成功失败，请求结束就关闭 loading 提示
+
+          if (result) {
+            fetchModelAttributes();
+            return true;
+          } else {
+            return false;
           }
         } catch (error) {
           console.error('操作失败:', error);
@@ -267,7 +260,7 @@ const CreateFieldDrawer: React.FC<CreateFieldDrawerProps> = ({
         label="名称"
         rules={[{ required: true, message: '该字段是必填项！' }]}
         placeholder="请输入名称"
-        disabled={!!values?.attr_id} // 如果是编辑模式，禁用该字段
+        // disabled={!!values?.attr_id} // 如果是编辑模式，禁用该字段
       />
       {/* 字段类型选择器 */}
       <ProFormSelect
@@ -285,12 +278,13 @@ const CreateFieldDrawer: React.FC<CreateFieldDrawerProps> = ({
           { value: 'enum', label: '枚举' },
           { value: 'enum_multi', label: '枚举(多选)' },
           { value: 'date', label: '日期' },
-          { value: 'dateTime', label: '日期时间' },
+          { value: 'datetime', label: '日期时间' },
           { value: 'long_text', label: '长字符' },
           { value: 'timezone', label: '时区' },
           { value: 'boolean', label: '布尔值' },
           { value: 'user', label: '用户' },
-          { value: 'api', label: '接口' }, // 新增
+          { value: 'user_multi', label: '用户(多选)' },
+          // { value: 'api', label: '接口' }, // 新增
         ]}
         rules={[{ required: true, message: '该字段是必填项！' }]}
         name="attr_type"
@@ -322,6 +316,13 @@ const CreateFieldDrawer: React.FC<CreateFieldDrawerProps> = ({
         // disabled={!!values?.attr_id && values?.is_builtin} // 如果是编辑模式，禁用该字段
       >
         在表单中显示
+      </ProFormCheckbox>
+      <ProFormCheckbox
+        name="is_search"
+        initialValue={false}
+        // disabled={!!values?.attr_id && values?.is_builtin} // 如果是编辑模式，禁用该字段
+      >
+        是否可搜索
       </ProFormCheckbox>
       <ProFormCheckbox
         name="is_required"

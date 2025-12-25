@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Drawer, Select, Flex, Space, Button, Input, App, Popconfirm } from 'antd';
 import { useModel, useParams } from '@umijs/max';
 import CustomProTable from '@/components/MyProTable/CustomProTable';
@@ -7,7 +7,7 @@ import {
   createResourceRelationship,
   deleteResourceRelationship,
 } from '@/services/resources/association/api';
-import type { ProColumns } from '@ant-design/pro-components';
+import type { ProColumns, ActionType } from '@ant-design/pro-components';
 
 interface DrawerTableProps {
   open: boolean;
@@ -31,13 +31,15 @@ const DrawerTable: React.FC<DrawerTableProps> = (props) => {
   const params = useParams<{ id: string }>();
   const currentModelId = Number(params.id);
 
+  // 添加表格引用
+  const actionRef = useRef<ActionType>();
+
   // 状态管理
   const [selectedRelationship, setSelectedRelationship] = useState<number>();
   const [selectedRelationshipModelId, setSelectedRelationshipModelId] = useState<number>();
   const [selectedField, setSelectedField] = useState<string>('create_name');
   const [keyword, setKeyword] = useState<string>('');
   const [searchParams, setSearchParams] = useState<any>();
-  const [refreshKey, setRefreshKey] = useState<number>(0); // 新增：用于刷新表格的key
 
   // 使用资源关联model
   const {
@@ -54,8 +56,6 @@ const DrawerTable: React.FC<DrawerTableProps> = (props) => {
       setSearchParams(undefined);
       setKeyword('');
       fetchAllModelRelationships(currentModelId);
-      // 新增：每次打开抽屉时刷新表格
-      setRefreshKey((prev) => prev + 1);
     }
   }, [open, currentModelId, defaultModelId, fetchAllModelRelationships]);
 
@@ -149,8 +149,8 @@ const DrawerTable: React.FC<DrawerTableProps> = (props) => {
         loadingMessage();
         if (result.inside_code === 0) {
           message.success('取消关联成功');
-          // 刷新表格数据
-          setRefreshKey((prev) => prev + 1);
+          // 刷新表格数据，保持当前页码
+          actionRef.current?.reload(false);
           // 刷新CollapseTable的数据
           refreshRelatedResources();
           onSuccess?.(); // 调用成功回调
@@ -173,8 +173,8 @@ const DrawerTable: React.FC<DrawerTableProps> = (props) => {
         loadingMessage();
         if (result.inside_code === 0) {
           message.success(result.msg);
-          // 刷新表格数据
-          setRefreshKey((prev) => prev + 1);
+          // 刷新表格数据，保持当前页码
+          actionRef.current?.reload(false);
           // 刷新CollapseTable的数据
           refreshRelatedResources();
           onSuccess?.(); // 调用成功回调
@@ -342,9 +342,10 @@ const DrawerTable: React.FC<DrawerTableProps> = (props) => {
           </Button>
         </Space>
       </Flex>
-      {selectedRelationshipModelId && (
+      {selectedRelationshipModelId && selectedRelationship && (
         <CustomProTable<ResourceWithRelStatus>
-          key={`${selectedRelationshipModelId}-${JSON.stringify(searchParams)}-${refreshKey}`} // 修改：添加refreshKey
+          key={`${selectedRelationshipModelId}-${JSON.stringify(searchParams)}`}
+          actionRef={actionRef}
           api={getModelResourcesWithRelStatus}
           apiParams={[
             selectedRelationshipModelId,

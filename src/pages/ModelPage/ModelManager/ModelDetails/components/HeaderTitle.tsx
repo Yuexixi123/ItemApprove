@@ -2,7 +2,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   InfoCircleOutlined,
-  PaperClipOutlined,
+  // PaperClipOutlined,
   VerticalAlignBottomOutlined,
   VerticalAlignTopOutlined,
 } from '@ant-design/icons';
@@ -27,12 +27,17 @@ const HeaderTitle = ({
       fetchModels: modelPage.fetchModels,
     };
   });
-  const { modelDetailsRecord, fetchModelsDetails } = useModel('modelDetails', (modelDetails) => {
-    return {
-      fetchModelsDetails: modelDetails.fetchModelsDetails,
-      modelDetailsRecord: modelDetails.modelDetailsRecord,
-    };
-  });
+  const { modelDetailsRecord, fetchModelsDetails, runUpdateModel, runDeleteModel } = useModel(
+    'modelDetails',
+    (modelDetails) => {
+      return {
+        fetchModelsDetails: modelDetails.fetchModelsDetails,
+        modelDetailsRecord: modelDetails.modelDetailsRecord,
+        runUpdateModel: modelDetails.runUpdateModel,
+        runDeleteModel: modelDetails.runDeleteModel,
+      };
+    },
+  );
 
   const modelId = getModelIdFromUrl();
 
@@ -46,22 +51,58 @@ const HeaderTitle = ({
 
   const [isShowEdit, setIsShowEdit] = useState(false);
   const [isShowGroupEdit, setIsShowGroupEdit] = useState(false);
+  const [editingModelName, setEditingModelName] = useState('');
 
+  // 删除模型
   const handleDeleteOk = () => {
     if (is_builtin) return false;
+
+    const currentModel = models[0];
+    if (!currentModel) return;
+
     modal.confirm({
       title: '确定删除该模型？',
+      content: `删除模型"${currentModel.model_name}"后，该模型下的所有资源实例也将被删除，此操作不可恢复。`,
+      okText: '确定删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        await runDeleteModel({ model_id: currentModel.model_id });
+      },
     });
   };
 
+  // 停用/启用模型
   const handleStopOk = () => {
     if (is_builtin) return false;
+
+    const currentModel = models[0];
+    if (!currentModel) return;
+
+    const isActive = currentModel.is_active;
+    const actionText = isActive ? '停用' : '启用';
+
     modal.confirm({
-      title: '确定停用该模型？',
+      title: `确定${actionText}该模型？`,
+      content: `${actionText}模型"${currentModel.model_name}"后，${
+        isActive ? '将无法创建新的资源实例' : '可以正常创建资源实例'
+      }。`,
+      okText: `确定${actionText}`,
+      cancelText: '取消',
+      onOk: async () => {
+        await runUpdateModel({
+          model_id: String(currentModel.model_id),
+          is_paused: isActive, // 注意：is_paused与is_active相反
+        });
+      },
     });
   };
 
   const handleEdit = () => {
+    const currentModel = models[0];
+    if (currentModel) {
+      setEditingModelName(currentModel.model_name);
+    }
     setIsShowEdit(true);
   };
 
@@ -69,11 +110,31 @@ const HeaderTitle = ({
     setIsShowGroupEdit(true);
   };
 
+  const handleGroupSave = async (modelgroup_id: string) => {
+    const currentModel = models[0];
+    if (!currentModel || !modelgroup_id) return;
+
+    runUpdateModel({
+      model_id: String(currentModel.model_id),
+      modelgroup_id: modelgroup_id,
+    });
+
+    setIsShowGroupEdit(false);
+  };
+
   const handleCancel = () => {
     setIsShowEdit(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const currentModel = models[0];
+    if (!currentModel || !editingModelName.trim()) return;
+
+    await runUpdateModel({
+      model_id: String(currentModel.model_id),
+      model_name: editingModelName.trim(),
+    });
+
     setIsShowEdit(false);
   };
 
@@ -111,7 +172,12 @@ const HeaderTitle = ({
               )}
               {isShowEdit && (
                 <>
-                  <Input style={{ width: '100px', height: '26px' }} />
+                  <Input
+                    style={{ width: '100px', height: '26px' }}
+                    value={editingModelName}
+                    onChange={(e) => setEditingModelName(e.target.value)}
+                    onPressEnter={handleSave}
+                  />
                   <span className="edit-button" onClick={handleSave}>
                     保存
                   </span>
@@ -134,12 +200,14 @@ const HeaderTitle = ({
               {isShowGroupEdit && (
                 <Select
                   style={{ width: 200 }}
+                  defaultValue={modelgroup_name}
                   onBlur={() => setIsShowGroupEdit(false)}
+                  onChange={(value) => handleGroupSave(value)}
                   options={groupOptions}
                 />
               )}
             </div>
-            <div className="model-text">
+            {/* <div className="model-text">
               <span>实例数量：</span>
               <div className="text-content-count" style={{ color: '#3a84ff' }}>
                 <span>0</span>
@@ -147,7 +215,7 @@ const HeaderTitle = ({
                   <PaperClipOutlined />
                 </span>
               </div>
-            </div>
+            </div> */}
 
             <div className="model-text">
               <span>更新时间：</span>

@@ -20,6 +20,7 @@ import { createStyles } from 'antd-style';
 import React from 'react';
 import { flushSync } from 'react-dom';
 import Settings from '../../../../config/defaultSettings';
+import logo from '@/assets/logo.jpg';
 import { fetchMenuFromApi } from '@/services/getMenu';
 const useStyles = createStyles(({ token }) => {
   return {
@@ -82,7 +83,6 @@ const useStyles = createStyles(({ token }) => {
 //   );
 // };
 const Login: React.FC = () => {
-  // const { message } = App.useApp();
   // const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
   // const [type, setType] = useState<string>('account');
   const { initialState, setInitialState } = useModel('@@initialState');
@@ -111,7 +111,7 @@ const Login: React.FC = () => {
           });
 
           // 菜单数据加载完成后再跳转
-          history.push('/home');
+          history.push('/capacityManagement');
         } else {
           message.error('获取菜单失败，请重试');
         }
@@ -122,34 +122,17 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    // try {
-    // 登录
-    // const msg = await login({
-    //   ...values,
-    // });
-    // if (msg.code === 0) {
-    const defaultLoginSuccessMessage = '登录成功！';
-    message.success(defaultLoginSuccessMessage);
-
-    // 保存token到localStorage
-    // if (msg.data && msg.data.token) {
-    // localStorage.setItem('access_token', msg.data.token);
-    // }
-
-    // 获取用户信息和菜单
-    await fetchUserInfo();
-
-    // 关闭加载提示
-    message.destroy();
-
-    return;
-    // }
-    // message.error(msg.message || '登录失败，请重试！');
-    // } catch (error) {
-    //   const defaultLoginFailureMessage = '登录失败，请重试！';
-    //   message.error(defaultLoginFailureMessage);
-    // }
+  const { login: doLogin } = useModel('login');
+  const handleSubmit = async (values: any) => {
+    const res = await doLogin(values?.username, values?.password);
+    if (res?.success) {
+      const defaultLoginSuccessMessage = '登录成功！';
+      message.success(defaultLoginSuccessMessage);
+      await fetchUserInfo();
+      message.destroy();
+      return;
+    }
+    message.error(res?.msg || '登录失败，请重试！');
   };
   // const { status, type: loginType } = userLoginState;
   return (
@@ -170,15 +153,15 @@ const Login: React.FC = () => {
             minWidth: 280,
             maxWidth: '120vw',
           }}
-          logo={<img alt="logo" src="/logo.jpg" />}
+          logo={<img alt="logo" src={logo} />}
           title="Master-CMDB"
           subTitle={'  '}
           initialValues={{
             autoLogin: true,
           }}
           // actions={['其他登录方式 :', <ActionIcons key="icons" />]}
-          onFinish={async () => {
-            await handleSubmit();
+          onFinish={async (values) => {
+            await handleSubmit(values);
           }}
         >
           <ProFormText

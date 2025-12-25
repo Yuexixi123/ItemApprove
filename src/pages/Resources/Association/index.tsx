@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { Button, Radio, Flex, Collapse, RadioChangeEvent, Checkbox, Empty } from 'antd';
+import { Button, Radio, Flex, Collapse, RadioChangeEvent, Checkbox, Empty, Spin } from 'antd';
 import { useModel, useParams } from '@umijs/max';
 import DrawerTable from './components/DrawerTable';
 import CollapseTable from './components/CollapseTable';
@@ -53,7 +53,7 @@ const Association = forwardRef<any, AssociationProps>((props, ref) => {
   const [open, setOpen] = useState(false);
   const [radioValue, setRadioValue] = useState<'a' | 'b'>('a');
   const [expandAll, setExpandAll] = useState(false);
-  const [activeKeys, setActiveKeys] = useState<string[]>(['1']);
+  const [activeKeys, setActiveKeys] = useState<string[]>([]);
   const [items, setItems] = useState<any[]>([]);
   const [defaultModelId, setDefaultModelId] = useState<number>();
   const [collapseRefreshTrigger, setCollapseRefreshTrigger] = useState<number>(0); // 新增：CollapseTable刷新触发器
@@ -61,8 +61,10 @@ const Association = forwardRef<any, AssociationProps>((props, ref) => {
   // 使用资源关联model
   const {
     modelRelationships,
+    modelRelationshipsLoading,
     fetchModelRelationships,
     allModelRelationships,
+    allModelRelationshipsLoading,
     fetchAllModelRelationships,
   } = useModel('resourceAssociation');
 
@@ -117,8 +119,21 @@ const Association = forwardRef<any, AssociationProps>((props, ref) => {
     } else {
       // 如果没有数据，清空items
       setItems([]);
+      setExpandAll(false);
     }
-  }, [modelRelationships, resourceId, activeKeys, collapseRefreshTrigger]); // 添加collapseRefreshTrigger依赖
+  }, [modelRelationships, resourceId, collapseRefreshTrigger, activeKeys]); // 重新添加activeKeys依赖
+
+  // 新增：单独的useEffect来检查展开状态，避免循环依赖
+  useEffect(() => {
+    if (items && items.length > 0) {
+      const allKeys = items.map((item) => item.key);
+      const isAllExpanded =
+        allKeys.length > 0 &&
+        allKeys.length === activeKeys.length &&
+        allKeys.every((itemKey) => activeKeys.includes(itemKey));
+      setExpandAll(isAllExpanded);
+    }
+  }, [items, activeKeys]);
 
   // 修改：处理抽屉关闭后的刷新
   const handleDrawerClose = () => {
@@ -135,6 +150,15 @@ const Association = forwardRef<any, AssociationProps>((props, ref) => {
     console.log(key);
     const newActiveKeys = Array.isArray(key) ? key : [key];
     setActiveKeys(newActiveKeys);
+
+    // 检查是否所有面板都已展开，如果是则自动勾选"全部展开"
+    if (items && items.length > 0) {
+      const allKeys = items.map((item) => item.key);
+      const isAllExpanded =
+        allKeys.length === newActiveKeys.length &&
+        allKeys.every((itemKey) => newActiveKeys.includes(itemKey));
+      setExpandAll(isAllExpanded);
+    }
   };
 
   const handleRadio = (e: RadioChangeEvent) => {
@@ -185,13 +209,15 @@ const Association = forwardRef<any, AssociationProps>((props, ref) => {
         </Flex>
       </Flex>
       <div className="relation-view">
-        {radioValue === 'a' &&
-          (items.length > 0 ? (
-            <Collapse activeKey={activeKeys} items={items} onChange={onChange} />
-          ) : (
-            <Empty description="暂无关联数据" style={{ padding: '40px 0' }} />
-          ))}
-        {radioValue === 'b' && <TopologyGraph data={data} />}
+        <Spin spinning={modelRelationshipsLoading || allModelRelationshipsLoading}>
+          {radioValue === 'a' &&
+            (items.length > 0 ? (
+              <Collapse activeKey={activeKeys} items={items} onChange={onChange} />
+            ) : (
+              <Empty description="暂无关联数据" style={{ padding: '40px 0' }} />
+            ))}
+          {radioValue === 'b' && <TopologyGraph data={data} />}
+        </Spin>
       </div>
       <DrawerTable
         open={open}

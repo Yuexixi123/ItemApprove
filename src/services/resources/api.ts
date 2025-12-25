@@ -10,7 +10,7 @@ export async function getModelResources(
   modelId: number,
   params?: API.ResourceListParams,
 ): Promise<API.ResourceListResponse> {
-  return request(`/v1/resource/model/${modelId}`, {
+  return request(`/resource/model/${modelId}`, {
     method: 'GET',
     params: {
       ...params,
@@ -25,7 +25,7 @@ export async function getModelResources(
  * @description 将模型属性字段返回给前端，提前渲染表格字段
  */
 export async function getModelAttributes(modelId: number): Promise<API.ModelAttributeResponse> {
-  return request(`/v1/resource/model/${modelId}/attribute`, {
+  return request(`/resource/model/${modelId}/attribute`, {
     method: 'GET',
   });
 }
@@ -40,7 +40,7 @@ export async function createModelResource(
   modelId: string | number,
   data: Record<string, any>,
 ): Promise<API.BaseResponse> {
-  return request(`/v1/resource/model/${modelId}`, {
+  return request(`/resource/model/${modelId}`, {
     method: 'POST',
     data,
   });
@@ -53,7 +53,7 @@ export async function createModelResource(
  * @returns 删除结果
  */
 export async function deleteResource(resourceIds: number[]): Promise<API.BaseResponse> {
-  return request(`/v1/resource`, {
+  return request(`/resource`, {
     method: 'DELETE',
     data: {
       resource_ids: resourceIds,
@@ -71,7 +71,7 @@ export async function updateResource(
   resourceId: string | number,
   body: Record<string, any>,
 ): Promise<API.BaseResponse> {
-  return request(`/v1/resource/${resourceId}`, {
+  return request(`/resource/${resourceId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ export async function saveModelAttributes(
   modelId: number,
   attributes: API.ModelAttributeUpdateItem[],
 ): Promise<API.BaseResponse> {
-  return request(`/v1/resource/model/${modelId}/attribute`, {
+  return request(`/resource/model/${modelId}/attribute`, {
     method: 'POST',
     data: { attrs: attributes },
   });
@@ -107,7 +107,7 @@ export async function getResourceDetail(params: {
   model_id: number;
 }): Promise<API.ResourceDetailResponse> {
   return request<API.ResourceDetailResponse>(
-    `/v1/resource/${params.resource_id}/model/${params.model_id}`,
+    `/resource/${params.resource_id}/model/${params.model_id}`,
     {
       method: 'GET',
     },
@@ -123,7 +123,7 @@ export async function getResourceDetail(params: {
 export async function getModelResourceNames(
   model_key: string,
 ): Promise<API.ResourceNameListResponse> {
-  return request('/v1/resource/model/resource_name', {
+  return request('/resource/model/resource_name', {
     method: 'GET',
     params: { model_key },
   });
@@ -143,7 +143,7 @@ export async function getResourceNameRelationship(
   },
 ): Promise<API.ResourceNameListResponse> {
   return request<API.ResourceNameListResponse>(
-    `/v1/resource/${resource_id}/resource_name_relationship`,
+    `/resource/${resource_id}/resource_name_relationship`,
     {
       method: 'GET',
       params,

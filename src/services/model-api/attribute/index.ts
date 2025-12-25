@@ -1,6 +1,6 @@
 import { request } from '@umijs/max';
 export async function getModelAttributes(model_id: number, options?: { [key: string]: any }) {
-  return request<API.AttributeResponse>(`/v1/attribute/${model_id}`, {
+  return request<API.AttributeResponse>(`/attribute/${model_id}`, {
     method: 'GET',
     ...(options || {}),
   });
@@ -8,7 +8,7 @@ export async function getModelAttributes(model_id: number, options?: { [key: str
 
 /** 获取属性名称列表 GET /attribute/model/{model_id}/attribute_name */
 export async function getAttributeNameList(model_id: number, options?: { [key: string]: any }) {
-  return request<API.AttributeNameListResponse>(`/v1/attribute/model/${model_id}/attribute_name`, {
+  return request<API.AttributeNameListResponse>(`/attribute/model/${model_id}/attribute_name`, {
     method: 'GET',
     ...(options || {}),
   });
@@ -20,7 +20,7 @@ export async function createModelAttribute(
   body: API.CreateAttributeRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>(`/v1/attribute/attr_group/${attrgroup_id}`, {
+  return request<API.BaseResponse>(`/attribute/attr_group/${attrgroup_id}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export async function createModelAttribute(
 
 /** 删除模型属性 DELETE /attribute/${attr_id} */
 export async function deleteModelAttribute(attr_id: number, options?: { [key: string]: any }) {
-  return request<API.BaseResponse>(`/v1/attribute/${attr_id}`, {
+  return request<API.BaseResponse>(`/attribute/${attr_id}`, {
     method: 'DELETE',
     ...(options || {}),
   });
@@ -44,7 +44,7 @@ export async function updateModelAttribute(
   body: API.UpdateAttributeRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>(`/v1/attribute/${attr_id}`, {
+  return request<API.BaseResponse>(`/attribute/${attr_id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ export async function createAttributeGroup(
   body: API.CreateAttributeGroupRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>(`/v1/attribute/group`, {
+  return request<API.BaseResponse>(`/attribute/group`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export async function createAttributeGroup(
 
 /** 删除属性分组 DELETE /attribute/group/${attrgroup_id} */
 export async function deleteAttributeGroup(attrgroup_id: number, options?: { [key: string]: any }) {
-  return request<API.BaseResponse>(`/v1/attribute/group/${attrgroup_id}`, {
+  return request<API.BaseResponse>(`/attribute/group/${attrgroup_id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export async function updateAttributeGroup(
   body: API.UpdateAttributeGroupRequest,
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>(`/v1/attribute/group/${attrgroup_id}`, {
+  return request<API.BaseResponse>(`/attribute/group/${attrgroup_id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

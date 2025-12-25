@@ -16,7 +16,7 @@ export async function getModelRelationshipJoinNames(
     is_select?: boolean; // 是否获取完整数据。False: 仅获取有关联资源的名称列表，True：获取所有模型关联关系拼接名列表
   },
 ): Promise<API.ModelRelationshipJoinNameResponse> {
-  return request(`/v1/model/${model_id}/relationship/rel_join_name`, {
+  return request(`/model/${model_id}/relationship/rel_join_name`, {
     method: 'GET',
     params,
   });
@@ -33,7 +33,7 @@ export async function getModelRelationshipJoinNames(
 export async function getRelatedResources(
   resource_rel_id: number,
 ): Promise<API.RelatedResourceResponse> {
-  return request(`/v1/resource/resource_rel/${resource_rel_id}/relationship`, {
+  return request(`/resource/resource_rel/${resource_rel_id}/relationship`, {
     method: 'GET',
   });
 }
@@ -59,7 +59,7 @@ export async function getModelResourcesWithRelStatus(
     resource_id?: number; // 用于获取关联关系的资源ID
   },
 ): Promise<API.ModelResourcesWithRelStatusResponse> {
-  return request(`/v1/resource/model/${model_id}/rel_status`, {
+  return request(`/resource/model/${model_id}/rel_status`, {
     method: 'GET',
     params,
   });
@@ -76,7 +76,7 @@ export async function createResourceRelationship(
   model_relationship_id: number,
   params: API.CreateResourceRelationshipParams,
 ): Promise<API.CreateResourceRelationshipResponse> {
-  return request(`/v1/resource/model_rel/${model_relationship_id}/relationship`, {
+  return request(`/resource/model_rel/${model_relationship_id}/relationship`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ export async function createResourceRelationship(
 export async function deleteResourceRelationship(
   rel_id: string,
 ): Promise<API.DeleteResourceRelationshipResponse> {
-  return request(`/v1/resource/relationship/${rel_id}`, {
+  return request(`/resource/relationship/${rel_id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ export async function getModelRelatedResources(
     page_size: number; // 每页条数
   },
 ): Promise<API.ModelRelatedResourcesResponse> {
-  return request(`/v1/resource/model/${model_id}/rel_resource`, {
+  return request(`/resource/model/${model_id}/rel_resource`, {
     method: 'GET',
     params,
   });

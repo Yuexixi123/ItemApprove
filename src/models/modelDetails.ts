@@ -1,9 +1,10 @@
 import { getModelAttributes } from '@/services/model-api/attribute';
 import { useState } from 'react';
 import { useRequest } from 'ahooks';
-import { history } from '@umijs/max';
-import { getModelList } from '@/services/model-api/model-manage';
+import { history, useModel } from '@umijs/max';
+import { getModelList, updateModel, deleteModel } from '@/services/model-api/model-manage';
 import { getModelIdFromUrl } from '@/utils';
+import { message } from 'antd';
 
 export default () => {
   // 定义状态
@@ -135,6 +136,74 @@ export default () => {
     setCollapseDefaultActiveKey(keys);
   };
 
+  // 获取模型页面的刷新方法
+  const { refreshData } = useModel('modelPage', (model) => ({
+    refreshData: model.refreshData,
+  }));
+
+  // 编辑模型
+  const { loading: updateLoading, run: runUpdateModel } = useRequest(
+    async (params: API.UpdateModelRequest) => {
+      // 参数校验
+      if (!params.model_id) {
+        throw new Error('模型ID不能为空');
+      }
+
+      const res = await updateModel(params);
+
+      if (res.inside_code === 0) {
+        message.success('模型更新成功');
+        // 刷新模型列表数据
+        if (refreshData) {
+          refreshData();
+        }
+        // 刷新当前模型详情数据
+        fetchModelsDetails({ model_id: Number(params.model_id) });
+        return res.data;
+      } else {
+        throw new Error(res.msg || '模型更新失败');
+      }
+    },
+    {
+      manual: true,
+      onError: (error) => {
+        message.error(error.message || '模型更新失败');
+      },
+    },
+  );
+
+  // 删除模型
+  const { loading: deleteLoading, run: runDeleteModel } = useRequest(
+    async (params: API.DeleteModelParams) => {
+      // 参数校验
+      if (!params.model_id) {
+        throw new Error('模型ID不能为空');
+      }
+
+      const res = await deleteModel(params);
+
+      if (res.inside_code === 0) {
+        message.success('模型删除成功');
+        // 刷新模型列表数据
+        if (refreshData) {
+          refreshData();
+        }
+        // 删除成功后清空详情数据并跳转到模型管理页面
+        clearModelData();
+        history.push('/modelPage/modelManager');
+        return res.data;
+      } else {
+        throw new Error(res.msg || '模型删除失败');
+      }
+    },
+    {
+      manual: true,
+      onError: (error) => {
+        message.error(error.message || '模型删除失败');
+      },
+    },
+  );
+
   return {
     filteredData,
     loading,
@@ -148,5 +217,10 @@ export default () => {
     allActiveKeys,
     fetchModelsDetails,
     setCollapseActiveKey, // 导出新添加的函数
+    // 编辑和删除功能
+    updateLoading,
+    deleteLoading,
+    runUpdateModel,
+    runDeleteModel,
   };
 };

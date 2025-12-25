@@ -84,6 +84,7 @@ declare namespace API {
     model_icon?: string;
     model_name?: string;
     is_paused?: boolean;
+    modelgroup_id?: string;
   }
 
   // 更新模型响应类型

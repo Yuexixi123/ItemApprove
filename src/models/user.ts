@@ -5,7 +5,7 @@ export default () => {
   // 用户列表状态
   const [userOptions, setUserOptions] = useState<{ label: string; value: number }[]>([]);
   // 加载状态
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true); // 初始状态设为true
 
   // 获取用户列表数据
   const fetchUserNames = async () => {

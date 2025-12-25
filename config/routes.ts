@@ -4,7 +4,8 @@ export default [
     layout: false,
     routes: [{ name: '登录', path: '/user/login', component: './User/Login' }],
   },
-  { path: '/', redirect: '/Home' },
+  { path: '/', redirect: '/capacityManagement' },
+  { path: '/cmdb', redirect: '/cmdb/capacityManagement' },
   {
     path: '/home',
     name: '首页',
@@ -60,12 +61,22 @@ export default [
     name: '运行分析',
     path: '/operationalAnalysis',
     routes: [
-      { path: '/operationalAnalysis', redirect: '/operationalAnalysis/operationalAudit' },
+      { path: '/operationalAnalysis', redirect: '/operationalAnalysis/autoInspection' },
       {
         path: '/operationalAnalysis/operationalAudit',
         name: '操作审计',
         icon: 'SnippetsOutlined',
         component: './OperationalAnalysis/OperationalAudit',
+      },
+      {
+        path: '/operationalAnalysis/resourceAudit',
+        name: '资源审计',
+        icon: 'AuditOutlined',
+      },
+      {
+        name: '一键巡检',
+        path: '/operationalAnalysis/autoInspection',
+        component: './OperationalAnalysis/AutoInspection',
       },
     ],
   },
@@ -99,7 +110,26 @@ export default [
         icon: 'LineChartOutlined',
         component: './MonitoringItems/MonitoringApprove',
       },
+      {
+        path: '/monitoringItems/autoInspection',
+        name: '一键巡检审批',
+        icon: 'DashboardOutlined',
+        component: './MonitoringItems/AutoInspection',
+      },
     ],
   },
+  {
+    name: '容量管理',
+    path: '/capacityManagement',
+    component: './CapacityManagement',
+    icon: 'LineChartOutlined',
+  },
+  {
+    name: '待办',
+    path: '/todo',
+    component: './Todo',
+    icon: 'ProfileOutlined',
+  },
+
   { path: '*', layout: false, component: './404' },
 ];

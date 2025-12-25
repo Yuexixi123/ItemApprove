@@ -66,6 +66,9 @@ declare namespace API {
     hideInForm: boolean;
     disabled: boolean;
     api_url?: string;
+    defaultValue?: any;
     options?: { label: string; value: string }[];
+    originalType?: string; // 添加原始类型字段
+    regxp?: string; // 添加正则表达式字段
   }
 }

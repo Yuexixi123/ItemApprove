@@ -2,7 +2,7 @@ import { request } from '@umijs/max';
 
 /** 获取关联类型名称列表 GET /association_type/association_type_name */
 export async function getAssociationTypeNames(options?: { [key: string]: any }) {
-  return request<API.AssociationTypeNameResponse>(`/v1/association_type/association_type_name`, {
+  return request<API.AssociationTypeNameResponse>(`/association_type/association_type_name`, {
     method: 'GET',
     ...(options || {}),
   });
@@ -10,7 +10,7 @@ export async function getAssociationTypeNames(options?: { [key: string]: any }) 
 
 /** 获取模型关联关系 GET /model/relationship/${model_id} */
 export async function getModelRelationships(model_id: number, options?: { [key: string]: any }) {
-  return request<API.RelationshipResponse>(`/v1/model/${model_id}/relationship`, {
+  return request<API.RelationshipResponse>(`/model/${model_id}/relationship`, {
     method: 'GET',
     params: {
       ...options,
@@ -30,7 +30,7 @@ export async function createModelRelationship(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>(`/v1/model/${model_id}/relationship`, {
+  return request<API.BaseResponse>(`/model/${model_id}/relationship`, {
     method: 'POST',
     data: body,
     ...(options || {}),
@@ -39,7 +39,7 @@ export async function createModelRelationship(
 
 /** 删除模型关联关系 DELETE /model/relationship/${rel_id} */
 export async function deleteModelRelationship(rel_id: number, options?: { [key: string]: any }) {
-  return request<API.BaseResponse>(`/v1/model/relationship/${rel_id}`, {
+  return request<API.BaseResponse>(`/model/relationship/${rel_id}`, {
     method: 'DELETE',
     ...(options || {}),
   });
@@ -53,7 +53,7 @@ export async function updateModelRelationship(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.BaseResponse>(`/v1/model/relationship/${rel_id}`, {
+  return request<API.BaseResponse>(`/model/relationship/${rel_id}`, {
     method: 'PATCH',
     data: body,
     ...(options || {}),

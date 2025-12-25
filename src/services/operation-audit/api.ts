@@ -11,7 +11,7 @@ export async function getOperationAudit(
   params: API.OperationAuditParams,
   options?: { [key: string]: any },
 ) {
-  return request<API.OperationAuditResponse>(`/v1/audit/operation_audit/${category}`, {
+  return request<API.OperationAuditResponse>(`/audit/operation_audit/${category}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

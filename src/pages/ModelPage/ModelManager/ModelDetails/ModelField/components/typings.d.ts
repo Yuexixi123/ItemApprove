@@ -40,7 +40,7 @@ declare namespace ModelField {
     | 'user'
     | 'enum'
     | 'enum_multi'
-    | 'api';
+    | 'user_multi';
 
   interface CollapseContentProps {
     list?: FieldItem[];

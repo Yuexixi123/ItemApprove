@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { message } from 'antd';
+import { App } from 'antd';
 import { useRequest } from 'ahooks';
 import {
   getModelRelationships,
@@ -7,6 +7,7 @@ import {
 } from '@/services/model-api/model-manage/model-relationship';
 
 export default () => {
+  const { message } = App.useApp();
   // 模型关系列表状态
   const [modelRelationships, setModelRelationships] = useState<API.RelationshipItem[]>([]);
   // 关联类型名称列表状态

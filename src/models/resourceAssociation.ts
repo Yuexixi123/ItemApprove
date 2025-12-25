@@ -10,6 +10,7 @@ export default () => {
    */
   const {
     data: modelRelationships,
+    loading: modelRelationshipsLoading,
     run: fetchModelRelationships,
     refresh: refreshModelRelationships,
   } = useRequest(
@@ -38,6 +39,7 @@ export default () => {
    */
   const {
     data: allModelRelationships,
+    loading: allModelRelationshipsLoading,
     run: fetchAllModelRelationships,
     refresh: refreshAllModelRelationships,
   } = useRequest(
@@ -104,9 +106,11 @@ export default () => {
 
   return {
     modelRelationships: modelRelationships || [],
+    modelRelationshipsLoading,
     fetchModelRelationships,
     refreshModelRelationships,
     allModelRelationships: allModelRelationships || [],
+    allModelRelationshipsLoading,
     fetchAllModelRelationships,
     refreshAllModelRelationships,
     relatedResources: relatedResources || [],

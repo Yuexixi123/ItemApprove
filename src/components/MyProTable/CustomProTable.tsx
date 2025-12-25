@@ -1,9 +1,9 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { ProTable } from '@ant-design/pro-components';
 import type { ProTableProps, ActionType } from '@ant-design/pro-components';
-import { App, Button } from 'antd';
-import { debounce } from 'lodash-es';
-import { saveColumnSettings } from '@/services/model-api/model-manage';
+import { Button } from 'antd';
+// import { debounce } from 'lodash-es';
+// import { saveColumnSettings } from '@/services/model-api/model-manage';
 import { PlusOutlined } from '@ant-design/icons';
 
 // 定义API返回的数据结构
@@ -45,10 +45,10 @@ function CustomProTable<
 >({
   api,
   apiParams,
-  pageName,
+  // pageName,
   columns,
   setCreateOpen,
-  saveColumns = true,
+  // saveColumns = true,
   createFormRender = true,
   transformResponse,
   rowKey,
@@ -56,28 +56,27 @@ function CustomProTable<
 }: CustomProTableProps<T, U>) {
   const actionRef = useRef<ActionType>();
   const [columnsState, setColumnsState] = useState<Record<string, any>>({});
-  const { message } = App.useApp();
 
-  // 保存列配置（防抖处理）
-  const saveSettings = useCallback(
-    debounce(async (state: any) => {
-      if (!saveColumns) return;
-      try {
-        const payload = Object.entries(state).map(([fieldKey, config]: [string, any]) => ({
-          page: pageName,
-          fieldKey,
-          visible: config.show,
-        }));
+  // // 保存列配置（防抖处理）
+  // const saveSettings = useCallback(
+  //   debounce(async (state: any) => {
+  //     if (!saveColumns) return;
+  //     try {
+  //       const payload = Object.entries(state).map(([fieldKey, config]: [string, any]) => ({
+  //         page: pageName,
+  //         fieldKey,
+  //         visible: config.show,
+  //       }));
 
-        await saveColumnSettings(payload);
-        message.success('列配置已保存');
-      } catch (error) {
-        message.error('列配置保存失败');
-        console.error('保存列配置失败:', error);
-      }
-    }, 1000),
-    [pageName, saveColumns],
-  );
+  //       await saveColumnSettings(payload);
+  //       message.success('列配置已保存');
+  //     } catch (error) {
+  //       message.error('列配置保存失败');
+  //       console.error('保存列配置失败:', error);
+  //     }
+  //   }, 1000),
+  //   [pageName, saveColumns],
+  // );
 
   // 设置actionRef的刷新方法
   useEffect(() => {
@@ -143,7 +142,6 @@ function CustomProTable<
           total: pagination?.total || 0,
         };
       } else {
-        message.error(response.msg || '请求失败');
         return {
           data: [],
           success: false,
@@ -151,8 +149,6 @@ function CustomProTable<
         };
       }
     } catch (error) {
-      console.error('请求失败:', error);
-      message.error('请求失败');
       return {
         data: [],
         success: false,
@@ -183,9 +179,9 @@ function CustomProTable<
         value: columnsState,
         onChange: (state) => {
           setColumnsState(state);
-          if (saveColumns) {
-            saveSettings(state);
-          }
+          // if (saveColumns) {
+          //   saveSettings(state);
+          // }
         },
       }}
       pagination={{

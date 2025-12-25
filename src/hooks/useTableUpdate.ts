@@ -45,25 +45,32 @@ export const useTableUpdate = () => {
 
       return new Promise((resolve) => {
         const executeUpdate = async () => {
-          const response = await api(data);
-          if (response && response.inside_code === 0) {
-            // 优先使用接口返回的消息，如果没有则使用传入的successMsg
-            message.success(response.msg || successMsg || '更新成功');
-            // 如果提供了actionRef且autoRefresh为true，刷新表格
-            if (autoRefresh && actionRef && actionRef.current) {
-              actionRef.current.reload();
+          try {
+            const response = await api(data);
+            if (response && response.inside_code === 0) {
+              // 优先使用接口返回的消息，如果没有则使用传入的successMsg
+              message.success(response.msg || successMsg || '更新成功');
+              // 如果提供了actionRef且autoRefresh为true，刷新表格
+              if (autoRefresh && actionRef && actionRef.current) {
+                actionRef.current.reload();
+              }
+              // 调用成功回调
+              onSuccess?.(response, data);
+              resolve(true);
+              return;
             }
-            // 调用成功回调
-            onSuccess?.(response, data);
-            resolve(true);
-            return;
-          }
 
-          // 优先使用接口返回的错误消息，如果没有则使用传入的errorMsg
-          message.error(response?.msg || errorMsg);
-          // 调用错误回调
-          onError?.(response, data);
-          resolve(false);
+            // 优先使用接口返回的错误消息，如果没有则使用传入的errorMsg
+            message.error(response?.msg || errorMsg);
+            // 调用错误回调
+            onError?.(response, data);
+            resolve(false);
+          } catch (error: any) {
+            console.error('更新请求异常:', error);
+            message.error(error?.message || errorMsg);
+            onError?.(error, data);
+            resolve(false);
+          }
         };
 
         // 执行异步函数

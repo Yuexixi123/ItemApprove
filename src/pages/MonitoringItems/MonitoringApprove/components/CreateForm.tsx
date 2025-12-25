@@ -1,6 +1,6 @@
-import { ProFormInstance, ProFormSelect, ModalForm } from '@ant-design/pro-components';
+import { ProFormInstance, ProFormSelect, ModalForm, ActionType } from '@ant-design/pro-components';
 import { useEffect, useRef, useState } from 'react';
-import { Tabs } from 'antd';
+import { App, Tabs } from 'antd';
 import EditorTable from './EditorTable';
 import { useModel } from '@umijs/max';
 
@@ -11,24 +11,23 @@ interface UpdateFormProps {
   title?: string;
   values?: MonitoringItem.ApprovalItem; // 修改为正确的类型
   setRow?: (row: MonitoringItem.ApprovalItem | undefined) => void;
-  onSuccess?: () => void;
   modelId?: number;
-  setApproveOpen: (open: boolean) => void;
+  setApproveOpen?: (open: boolean) => void;
+  actionRef?: React.MutableRefObject<ActionType | undefined>; // 添加actionRef属性
 }
 
 const CreateForm = ({
   open,
   setOpen,
   title = '新增申请',
-  values,
-  setApproveOpen,
-}: UpdateFormProps) => {
-  // const { message } = App.useApp();
+  actionRef,
+}: // setApproveOpen,
+UpdateFormProps) => {
+  const { message } = App.useApp();
   const [monitoringType, setMonitoringType] = useState<MonitoringItem.ModelNameItem[]>([]);
   const [selectedSysId, setSelectedSysId] = useState<number>(); // 修改为 number 类型
   const [showMonitoringType, setShowMonitoringType] = useState<boolean>(false); // 控制监控项类型显示
-
-  console.log('values', values);
+  const [cachedResourcesData, setCachedResourcesData] = useState<Record<string, any[]>>({}); // 缓存后端返回的原始数据
 
   const formRef = useRef<ProFormInstance>();
 
@@ -38,15 +37,19 @@ const CreateForm = ({
     monitoringItemModelOptions,
     modelResourcesData,
     resourcesLoading,
+    createApprovalLoading,
     fetchModelResources,
     fetchMonitoringItemModelNames,
+    createMonitoringItemApproval,
   } = useModel('monitoring.index', (model) => ({
     hostOptions: model.hostOptions,
     monitoringItemModelOptions: model.monitoringItemModelOptions,
     modelResourcesData: model.modelResourcesData,
     resourcesLoading: model.resourcesLoading,
+    createApprovalLoading: model.createApprovalLoading,
     fetchModelResources: model.fetchModelResources,
     fetchMonitoringItemModelNames: model.fetchMonitoringItemModelNames,
+    createMonitoringItemApproval: model.createMonitoringItemApproval,
   }));
 
   const { modelResourceNames, fetchModelResourceNames } = useModel('selectOption', (model) => ({
@@ -75,64 +78,50 @@ const CreateForm = ({
             model_key: item.model_key,
             ...(hostResourceId && { host_resource_id: hostResourceId }),
           };
-          fetchModelResources(searchParams);
+          fetchModelResources(searchParams).then(() => {
+            // 缓存获取到的数据
+            const resourceData = modelResourcesData[item.model_key] || [];
+            setCachedResourcesData((prev) => ({
+              ...prev,
+              [item.model_key]: [...resourceData],
+            }));
+          });
         }
       });
     }
   };
 
-  // 移除或修改系统选择变化时的 useEffect
-  // 如果需要在系统变化时重新获取数据，确保只在有监控项类型时调用
+  // 监听modelResourcesData变化，自动缓存数据
   useEffect(() => {
-    if (selectedSysId && monitoringType.length > 0) {
-      monitoringType.forEach((item) => {
-        if (item.model_key) {
-          fetchModelResources({
-            sys_resource_id: selectedSysId,
-            model_key: item.model_key,
-          });
-        }
-      });
-    }
-  }, [selectedSysId]); // 只依赖 selectedSysId
+    // 当modelResourcesData更新时，自动缓存数据
+    Object.entries(modelResourcesData).forEach(([modelKey, resourceData]) => {
+      if (resourceData && resourceData.length > 0) {
+        setCachedResourcesData((prev) => ({
+          ...prev,
+          [modelKey]: [...resourceData],
+        }));
+      }
+    });
+  }, [modelResourcesData]);
 
   // 组件挂载或打开时获取系统选项和监控项模型名称
   useEffect(() => {
     if (open) {
       // 重置表单字段
       formRef.current?.resetFields();
-      console.log(33333);
 
       // 重置所有状态
       setMonitoringType([]);
       setSelectedSysId(undefined);
       setShowMonitoringType(false);
+      setCachedResourcesData({});
       fetchMonitoringItemModelNames();
     }
-  }, [open, fetchMonitoringItemModelNames]);
-
-  // 表单值初始化 - 移除 resetFields 调用，因为已经在上面的 useEffect 中处理
-  useEffect(() => {
-    if (values && formRef.current && open) {
-      formRef.current?.setFieldsValue(values);
-      console.log('11111', formRef.current);
-      console.log('2222', values);
-    }
-  }, [values, open]);
-
+  }, [open]);
   // 生成标签页项
-  // 在生成标签页项的地方添加调试
   const items = monitoringType.map((item) => {
     const resourceData = modelResourcesData[item.model_key] || [];
     const isLoading = resourcesLoading[item.model_key] || false;
-
-    // 添加调试日志
-    console.log('标签页数据调试:', {
-      modelKey: item.model_key,
-      resourceData,
-      modelResourcesData,
-      isLoading,
-    });
 
     return {
       label: item.label,
@@ -140,12 +129,20 @@ const CreateForm = ({
       children: (
         <EditorTable
           key={item.value}
-          value={item.value}
           modelId={Number(item.value)}
           resourceData={resourceData}
           loading={isLoading}
           selectedSysId={selectedSysId}
+          cachedData={cachedResourcesData[item.model_key] || []}
           onSearch={(hostResourceId) => handleHostSearch(hostResourceId)}
+          onDataChange={(data) => {
+            // 更新缓存数据
+            console.log(`CreateForm - 接收到 ${item.model_key} 数据变化:`, data);
+            setCachedResourcesData((prev) => ({
+              ...prev,
+              [item.model_key]: data,
+            }));
+          }}
         />
       ),
     };
@@ -159,25 +156,121 @@ const CreateForm = ({
       formRef={formRef}
       modalProps={{
         maskClosable: false,
+        confirmLoading: createApprovalLoading,
       }}
       open={open}
-      onFinish={async (value) => {
-        console.log('value', value);
-        setOpen(false);
-        setApproveOpen(true);
-        return true;
+      onFinish={async (values) => {
+        console.log('=== onFinish 被调用 ===');
+        console.log('表单值:', values);
+
+        try {
+          console.log('=== CreateForm 提交开始 ===');
+          console.log('缓存数据:', cachedResourcesData);
+          console.log('监控类型:', monitoringType);
+
+          const resourcesData: Record<string, any[]> = {};
+
+          // 建立model_key到model_id的映射
+          const modelKeyToIdMap = monitoringType.reduce((map, item) => {
+            map[item.model_key] = item.value.toString();
+            return map;
+          }, {} as Record<string, string>);
+
+          console.log('模型映射:', modelKeyToIdMap);
+
+          // 收集缓存的数据，按model_id分组
+          Object.entries(cachedResourcesData).forEach(([modelKey, resourceData]) => {
+            const modelId = modelKeyToIdMap[modelKey];
+            console.log(`处理模型 ${modelKey} -> ${modelId}:`, resourceData);
+            if (modelId && resourceData && resourceData.length > 0) {
+              // 根据数据状态设置适当的action
+              const formattedData = resourceData.map((item) => {
+                // 保留原始id，只移除index字段
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { index, ...cleanItem } = item;
+
+                // 处理触发器数据
+                if (
+                  cleanItem.trigger_resource_datas &&
+                  Array.isArray(cleanItem.trigger_resource_datas)
+                ) {
+                  cleanItem.trigger_resource_datas = cleanItem.trigger_resource_datas.map(
+                    (trigger: any) => {
+                      // 保留原始触发器id，只移除index字段
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      const { index, ...cleanTrigger } = trigger;
+                      // 只保留已有的action标记，不为原始触发器数据设置action
+                      return {
+                        ...cleanTrigger,
+                        ...(cleanTrigger.trigger_resource_action && {
+                          trigger_resource_action: cleanTrigger.trigger_resource_action,
+                        }),
+                      };
+                    },
+                  );
+                }
+
+                // 只有明确标记为需要创建的数据才设置action
+                return {
+                  ...cleanItem,
+                  // 只保留已有的action标记，不为原始数据设置action
+                  ...(cleanItem.item_resource_action && {
+                    item_resource_action: cleanItem.item_resource_action,
+                  }),
+                };
+              });
+
+              resourcesData[modelId] = formattedData;
+            }
+          });
+
+          const submitData: MonitoringItem.CreateApprovalParams = {
+            system_id: values.system_id,
+            model_id: values.model_id,
+            resources: resourcesData,
+            approval_status: values.approval_status,
+          };
+
+          console.log('最终提交数据:', submitData);
+          console.log('=== CreateForm 提交结束 ===');
+
+          // 调用model层方法创建审批
+          const result = await createMonitoringItemApproval(submitData);
+
+          // 检查创建结果
+          if (result.success) {
+            // 成功后关闭弹窗并调用成功回调
+            setOpen(false);
+            message.success(result.message || '成功');
+            // 刷新列表
+            if (actionRef?.current) {
+              actionRef.current.reload();
+            }
+            return true;
+          } else {
+            // 创建失败，显示错误信息但不关闭弹窗
+            message.error(result.message || '失败');
+            return false;
+          }
+        } catch (error) {
+          console.error('创建监控项审批失败:', error);
+          return false;
+        }
       }}
     >
       <ProFormSelect
-        name="sys_name"
+        name="system_id"
         label="系统名称"
         options={modelResourceNames}
         onChange={(value: number) => {
           // 修改类型为 number
-          console.log('value', value);
-
           setSelectedSysId(value);
           setShowMonitoringType(!!value);
+
+          // 清除监控项类型字段的值和相关状态
+          formRef.current?.setFieldValue('model_id', undefined);
+          setMonitoringType([]);
+          setCachedResourcesData({});
         }}
         showSearch
         fieldProps={{
@@ -231,6 +324,13 @@ const CreateForm = ({
                 fetchModelResources({
                   sys_resource_id: selectedSysId,
                   model_key: item.model_key,
+                }).then(() => {
+                  // 缓存获取到的数据
+                  const resourceData = modelResourcesData[item.model_key] || [];
+                  setCachedResourcesData((prev) => ({
+                    ...prev,
+                    [item.model_key]: [...resourceData],
+                  }));
                 });
               });
             }

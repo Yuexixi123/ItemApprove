@@ -43,12 +43,16 @@ export default () => {
     monitoringItemModelOptions: dataHook.monitoringItemModelOptions,
     modelResourcesData: dataHook.modelResourcesData,
     resourcesLoading: dataHook.resourcesLoading,
+    createApprovalLoading: dataHook.createApprovalLoading, // 新增创建审批loading状态
 
     // 方法
     fetchModelAttributes,
     fetchTriggerModelAttributes,
     fetchModelResources: dataHook.fetchModelResources,
+    createMonitoringItemApproval: dataHook.createMonitoringItemApproval, // 新增创建审批方法
+    updateMonitoringItemApproval: dataHook.updateMonitoringItemApproval, // 新增更新审批方法
     fetchMonitoringItemModelNames: dataHook.fetchMonitoringItemModelNames,
+    fetchMonitoringItemApprovalDetail: dataHook.fetchMonitoringItemApprovalDetail, // 新增获取审批详情方法
   };
 };
 
